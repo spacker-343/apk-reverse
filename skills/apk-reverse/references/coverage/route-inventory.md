@@ -21,7 +21,7 @@ the evidence record condensed in `references/evidence-summary.md` §Where the fu
 | Repack, sign, install | including the install refusals that look like a broken build | `repack-and-sign.md` |
 | Packers, custom loaders, code virtualization | identification, the validation boundary, the routes that survive it | `packers.md`, `code-virtualization-and-custom-linkers.md` |
 | Java2C vs extraction shell vs JNI sinking | the misdiagnosis that sends you hunting a decrypted DEX that never exists | `java2c-and-jni-sinking.md`, `scripts/java2c_probe.py` |
-| Native layer | `.so` hosts, tamper-triggered self-termination, forged ELF, neutralising a terminate path | `native-and-so.md`, `native-tamper-and-suicide.md` |
+| Native layer and ELF address mapping | `.so` hosts, tamper-triggered self-termination, PIE/`PT_LOAD` runtime-to-file mapping, neutralising a terminate path | `native-and-so.md`, `native-tamper-and-suicide.md`, `arm-tracing-elf-and-crash.md`, `scripts/elf_runtime.py` |
 | Flutter / Dart AOT | analysing and patching `libapp.so` **given a snapshot dump** | `dart-aot.md` |
 | Runtime and server side | Frida analysis, API probing, feature-scoped TLS failures, update/forced-upgrade neutralisation | `dynamic-frida.md`, `server-api.md`, `tls-and-cert.md`, `updates-and-forced-upgrade.md` |
 | Verification discipline | the claim ladder, control builds, capture-and-look, bounded waits | `verification.md`, `long-task-discipline.md` |
@@ -36,7 +36,7 @@ route was not measured on this repository's evidence**. Treat them as leads with
 | Module-side delivery | an LSPosed/Xposed module when a repack is refused — `lsposed-and-modules.md` |
 | Extraction shells and the VMP boundary | how to *measure* that the bodies are empty, and where recovery stops — `advanced-unpacking.md` |
 | Calling a routine instead of reading it | emulation (Unidbg/Unicorn) versus service-ifying the live function over Frida RPC — `emulation-and-rpc.md` |
-| Instruction-level tracing | Stalker traces and the trace-to-CFG route against OLLVM, with its measured boundaries — `native-dbi-and-deobfuscation.md` |
+| Instruction-level tracing and ARM hardware capability probing | Stalker/QBDI/ETE terminology, trace-to-CFG boundaries, and a read-only CoreSight/perf probe; ETE recording is only documented/partially verified and device-specific | `native-dbi-and-deobfuscation.md`, `arm-tracing-elf-and-crash.md`, `scripts/device_hw_probe.py` |
 | Protocols beyond REST | schema-free protobuf, gRPC frames, QUIC/HTTP3 limits, native-side pinning — `protocol-reverse.md` |
 | When userspace hooking cannot reach the check | raw `svc`, `init_array`-early detection, the kernel-route map and its version gate — `kernel-and-environment-hardening.md` |
 | Split APK / App Bundle sets | reading a set, merge versus unified re-signing, the install refusal each mistake produces — `split-apk.md` |

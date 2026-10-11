@@ -52,12 +52,12 @@ script header in `scripts/stalker_trace.js`.
 
 | Question | Observation | Tool |
 |---|---|---|
-| Which blocks executed, and how often? | Block-level trace with execution counts | `scripts/stalker_trace.js` + `scripts/stalker_report.py` |
-| Which functions inside the module call each other? | Call edges from the same trace | same pair (`call` events) |
+| Which blocks executed, and how often? | Block-level trace with execution counts | `scripts/stalker_trace.js` + `scripts/stalker_report.py`, or a successfully recorded hardware trace |
+| Which functions inside the module call each other? | Call edges from the same trace | same pair (`call` events); ETE needs a decoder and a separate call-edge reconstruction step |
 | Which imported function does this stub reach? | Relocation table, not trace | `scripts/elf_plt.py` |
-| Where did the process die, and did it look arranged? | Crash record, signal, fault address, backtrace split by owner | `scripts/native_crash.py` |
-| What value must the state variable have to reach block X? | Constraint solving over the dispatcher | angr / Triton () |
-| What is the value at a specific point for a specific input? | Deterministic per-instruction replay with memory operands | QBDI () |
+| Where did the process die, and did it look arranged? | Crash record, signal, fault address, backtrace split by owner | `scripts/native_crash.py` + `scripts/elf_runtime.py` |
+| What value must the state variable have to reach block X? | Constraint solving over the dispatcher | angr / Triton (not shipped) |
+| What is the value at a specific point for a specific input? | Deterministic per-instruction replay with memory operands | QBDI (not shipped) |
 | What does this code do with no device at all? | Emulation of the `.so` with a synthetic environment | unidbg / Unicorn / QEMU |
 
 The first two rows are one run of one script — take both. `elf_plt.py` and `native_crash.py` are not

@@ -117,8 +117,10 @@ verified mechanism versus by documented-but-mostly-inferred route — is in
 **Partial coverage that is easy to over-read** — these are documented routes whose *dependency* this
 skill does not ship, and each has a fence around it in the same file: Dart AOT analysis needs a
 snapshot dump you must obtain elsewhere and naming the front end matters · extraction-shell recovery
-stops at the VMP boundary · a Stalker trace is not guaranteed on every device · a kernel-side answer
-requires a module this skill only scaffolds.
+snapshot dump you must obtain elsewhere and naming the front end matters · extraction-shell recovery
+stops at the VMP boundary · Stalker and ETE traces are optional execution-path backends, not automatic
+deobfuscators · a hardware-trace result needs a successful bounded recording and ELF address mapping ·
+a kernel-side answer requires a module this skill only scaffolds.
 
 **Not covered — say so rather than improvise:** Unity / IL2CPP · React Native / Hermes / Cordova ·
 iOS · defeating a server-side authority · an off-the-shelf unpacker or an anti-detection arms race ·
@@ -207,7 +209,8 @@ unread in this repository.
 | A module's entry class is missing from its own dex (so it can never load), yet the package installs, enables and looks healthy | `references/lsposed-and-modules.md` — check `assets/xposed_init` against the dex's actual classes; installation is not evidence of anything |
 | You only need to **call** the target's own routine (sign, token, encrypt) rather than change the app | `references/emulation-and-rpc.md` — emulate it, or service-ify the live function over Frida RPC |
 | A native function is a many-thousand-line `switch` state machine, or the decompiler's output is meaningless | `references/native-dbi-and-deobfuscation.md` — OLLVM shapes, a Stalker trace, and how far a trace actually gets you |
-| `Stalker.follow` installs but no events arrive, or following a hot libc export crashes the process | `references/native-dbi-and-deobfuscation.md` §6 failure modes — this repository measured both |
+| `Stalker.follow` installs but no events arrive, following a hot libc export crashes the process, or a CoreSight probe reports `cs-etm` but recording says `etm devices are not available` | `references/native-dbi-and-deobfuscation.md` §6 failure modes, then `references/arm-tracing-elf-and-crash.md` — separate software DBI failure from hardware trace-source failure |
+| A tombstone PC does not match the bytes in a local PIE/`.so`, or a trace address looks impossible | `references/arm-tracing-elf-and-crash.md` §4 — map runtime address through `PT_LOAD` and load bias before disassembling |
 | The traffic is protobuf/gRPC/QUIC, or a proxy sees TLS but requests still fail on a Flutter app | `references/protocol-reverse.md` — schema-less protobuf, frame capture, and native-side pinning |
 | Userspace hooks land and the app still dies: the check reads `/proc/self/status` through a raw `svc`, or runs before `JNI_OnLoad` | `references/kernel-and-environment-hardening.md` — what the next layer up and down can actually do, and when to stop |
 | You must edit, repack, sign or inspect the APK **from the phone itself** | `references/on-device-tooling.md`, `scripts/mt_mcp_probe.py` |

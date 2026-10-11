@@ -90,6 +90,7 @@ its own strength note at the top.
   service-ification (`emulation-and-rpc.md`).
 - **Instruction-level tracing and de-obfuscation** — the OLLVM shapes, a Stalker trace, the
   trace-to-CFG route, and the measured boundaries in `native-dbi-and-deobfuscation.md`.
+- **PIE/`.so` runtime address mapping and ARM hardware capability probing** — the dependency-free `PT_LOAD` mapper and the read-only CoreSight/`cs-etm`/SPE/BRBE probe are documented, but end-to-end tombstone integration, ETE recording and trace decoding remain device-specific and unverified (`arm-tracing-elf-and-crash.md`, `scripts/elf_runtime.py`, `scripts/device_hw_probe.py`).
 - **Protocol reversing beyond REST** — protobuf without a schema, gRPC frame capture, the QUIC/HTTP3
   limit, native-side certificate pinning (`protocol-reverse.md`).
 - **What to do when userspace hooking provably cannot reach the check** — raw `svc` syscalls,

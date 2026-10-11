@@ -370,9 +370,17 @@ CAPABILITIES = {
         'name': 'Static ELF / .so analysis and constant patching',
         'required': ['python39'],
         'optional': ['module:capstone'],
-        'scripts': ['elf_plt.py', 'so_constpatch.py', 'svc_scan.py', 'native_crash.py'],
-        'note': 'elf_plt and so_constpatch do not need capstone; svc_scan refuses to '
+        'scripts': ['elf_plt.py', 'elf_runtime.py', 'so_constpatch.py', 'svc_scan.py', 'native_crash.py'],
+        'note': 'elf_plt, elf_runtime and so_constpatch do not need capstone; svc_scan refuses to '
                 'run without it, and native_crash needs it for the arm64 disassembly',
+    },
+    'device_hw_trace': {
+        'name': 'ARM hardware-trace capability probe (CoreSight/ETM/SPE/BRBE hints)',
+        'required': ['python39', 'tool:adb', 'device'],
+        'optional': ['device_root'],
+        'scripts': ['device_hw_probe.py'],
+        'note': 'the probe separates hardware hints, kernel exposure, recorder event names and '
+                'a bounded cs-etm smoke test; a visible node is not treated as a usable trace',
     },
     'static_jadx': {
         'name': 'jadx decompilation',
@@ -1001,6 +1009,7 @@ SCRIPT_CAPABILITIES = {
     'apk_diff.py': ['static_dex'],
     'blob_decode.py': ['static_dex'],
     'elf_plt.py': ['static_native'],
+    'elf_runtime.py': ['static_native'],
     'so_constpatch.py': ['static_native'],
     'svc_scan.py': ['static_native'],
     'native_crash.py': ['static_native'],
@@ -1037,6 +1046,7 @@ SCRIPT_CAPABILITIES = {
     'vmp_diff_harness.py': ['smali_roundtrip'],
     'scan_leaks.py': ['publish_gate'],
     'mt_mcp_probe.py': ['device_static'],
+    'device_hw_probe.py': ['device_hw_trace'],
     'tls_check.py': ['protocol_decode'],
     'probe_api.py': ['protocol_decode'],
     'sig_probe.py': ['frida_dynamic', 'static_dex'],
