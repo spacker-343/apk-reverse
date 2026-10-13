@@ -23,7 +23,7 @@ import argparse
 import json
 import struct
 import sys
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 PT_LOAD = 1
@@ -35,14 +35,14 @@ def number(text: str) -> int:
     return int(text, 0)
 
 
-def unpack(fmt: str, data: bytes, offset: int) -> Tuple[object, ...]:
+def unpack(fmt: str, data: bytes, offset: int) -> Tuple[Any, ...]:
     size = struct.calcsize(fmt)
     if offset < 0 or offset + size > len(data):
         raise ValueError("ELF header/table is truncated at 0x%x" % offset)
     return struct.unpack_from(fmt, data, offset)
 
 
-def parse_elf(data: bytes) -> Dict[str, object]:
+def parse_elf(data: bytes) -> Dict[str, Any]:
     if len(data) < 64 or data[:4] != b"\x7fELF":
         raise ValueError("not an ELF file")
     elf_class = data[4]
@@ -95,12 +95,12 @@ def find_segment_for_file(segments: List[Dict[str, int]], file_offset: int) -> O
     return None
 
 
-def result_for_runtime(info: Dict[str, object], runtime: int, load_bias: int) -> Dict[str, object]:
+def result_for_runtime(info: Dict[str, Any], runtime: int, load_bias: int) -> Dict[str, Any]:
     segments = info["segments"]
     assert isinstance(segments, list)
     seg = find_segment_for_runtime(segments, runtime, load_bias)
-    out: Dict[str, object] = {"kind": "runtime-address", "runtime_address": hex(runtime),
-                              "load_bias": hex(load_bias)}
+    out: Dict[str, Any] = {"kind": "runtime-address", "runtime_address": hex(runtime),
+                           "load_bias": hex(load_bias)}
     if seg is None:
         out["mapped"] = False
         out["reason"] = "address is outside every PT_LOAD memory range"
@@ -115,11 +115,11 @@ def result_for_runtime(info: Dict[str, object], runtime: int, load_bias: int) ->
     return out
 
 
-def result_for_file(info: Dict[str, object], file_offset: int) -> Dict[str, object]:
+def result_for_file(info: Dict[str, Any], file_offset: int) -> Dict[str, Any]:
     segments = info["segments"]
     assert isinstance(segments, list)
     seg = find_segment_for_file(segments, file_offset)
-    out: Dict[str, object] = {"kind": "file-offset", "file_offset": hex(file_offset)}
+    out: Dict[str, Any] = {"kind": "file-offset", "file_offset": hex(file_offset)}
     if seg is None:
         out["mapped"] = False
         out["reason"] = "offset is outside every PT_LOAD file range"
