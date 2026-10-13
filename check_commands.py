@@ -83,6 +83,7 @@ CMD_TOKEN_RE = re.compile(r'^(python3?|py)(\.exe)?$', re.I)
 FLAG_RE = re.compile(r'^(--[A-Za-z][A-Za-z0-9_-]*)(=.*)?$')
 SHORT_RE = re.compile(r'^(-[A-Za-z0-9])(=.*)?$')
 USAGE_FLAG_RE = re.compile(r'(\[?-{1,2}[A-Za-z][A-Za-z0-9_-]*)\]?')
+USAGE_LINE_RE = re.compile(r'^\s*usage[: ]', re.I | re.M)
 
 # Documented commands whose script lives in ANOTHER repository's checkout, reached by a
 # path relative to that checkout rather than to this one. A silent allow-list is how a
@@ -304,6 +305,19 @@ def help_arg_table(path):
         shutil.rmtree(scratch, ignore_errors=True)
     text = (p.stdout or '') + '\n' + (p.stderr or '')
     if not text.strip():
+        return None
+    if p.returncode != 0 and not USAGE_LINE_RE.search(text):
+        # The script refused `--help` and said something else. That answer is prose
+        # about why it refused, and prose contains flag-shaped tokens. Measured
+        # failure: with pytest absent, `tests/run_tests.py --help` prints
+        # `install: python -m pip install pytest`, and the `-m` of that sentence was
+        # read as the script's whole interface -- so every documented `-q` in
+        # docs/tool-verification became drift on a machine that had never installed
+        # pytest. The repository's own gate test cannot catch this: it is a pytest
+        # test, so pytest is installed by definition whenever it runs.
+        #
+        # A non-zero exit alone is not grounds to reject. `patch_smali.py` prints a
+        # real usage block and exits 2, and that table is the only one it has.
         return None
 
     flags = {}
