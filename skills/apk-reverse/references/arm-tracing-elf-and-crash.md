@@ -4,7 +4,7 @@
 
 **Load this when:** ARM tracing names, ELF/crash addresses, or OLLVM/VMP path evidence decide the next route.
 
-> **强度说明：**分为 `observed`、`inferred`、`unverified`。socrates 精确内核上的八核 ETE 初始化和短时 AUX 采集已有 `observed` 记录与随附模块，见 `references/ete-socrates-module.md`；完整指令路径解码和其他设备仍未验证。运行 `scripts/device_hw_probe.py` 保存本次输出，不能将单机记录推广到所有 Android。
+> **强度说明：**分为 `observed`、`inferred`、`unverified`。socrates 精确内核上的八核 ETE 初始化、短时 AUX 采集及 maps/PT_LOAD/真实 ELF 字节验证的 native 指令区间已有 `observed` 记录，见 `references/ete-socrates-module.md` 与 `references/ete-decoding.md`。成功样本仍有 reset/overflow 缺口，小过滤样本只有 NO_SYNC 且原因未闭合；不是完整执行路径或业务语义。运行 `scripts/device_hw_probe.py` 保存本次输出，其他设备/内核/新目标必须重新验证。
 
 ## 1. 先建立一张“能力分层图”
 
@@ -253,7 +253,7 @@ Stalker/QBDI/模拟
   → 符号执行
 ```
 
-ETE 已在记录的 socrates 基线上成功产生 AUX 数据，可作为候选低扰动后端；完整解码到块/边仍需验证，不是必须依赖，也不是自动还原器。
+ETE 已在记录的 socrates 基线上得到经过 maps/PT_LOAD/真实 ELF 字节验证的 native 指令区间，复用入口见 `references/ete-decoding.md`；有 reset/overflow 缺口，完整块/边、调用路径及语义恢复未验证，不是必须依赖，也不是自动还原器。
 
 ## 7. VMP：trace 看到的是解释器，不是原始程序
 

@@ -42,6 +42,7 @@ next** — and points at the one section that says "the full record is elsewhere
 | Instruction-level tracing (Stalker) | Exclusion keeps the target alive; it does not restore event delivery, which stayed at zero | partial | observed | `references/native-dbi-and-deobfuscation.md`, `scripts/stalker_trace.js`, `scripts/stalker_report.py` |
 | ARM hardware trace capability probe | Initial rooted K60 Pro recording failed with `etm devices are not available`; a stock-ABI matched source module then initialized eight ETE v1 sources in Enforcing and captured 2,166,016 AUX bytes; full path decoding and SPE/BRBE remain unverified | partial | observed | `references/ete-socrates-module.md`, `scripts/device_hw_probe.py`, `assets/ete/socrates-5.15.41/evidence/runtime-summary.md` |
 | Socrates ETE module and reboot recovery | Verified original `.ko` and build/ABI materials are bundled; explicit `ete_module.py --load` guards exact baseline/hash and refuses repeat insmod; no boot autoload is configured or reboot tested by this update | device-specific | observed (original load/capture); unverified (reboot/autoload) | `references/ete-socrates-module.md`, `scripts/ete_module.py`, `assets/ete/socrates-5.15.41/` |
+| Socrates ETE native-range decoding | Device OpenCSD decoded 610,502 target ranges / 19,918 unique, all validated against capture-time maps/PT_LOAD/real ELF bytes; shell control and NO_SYNC-only filtered failure preserved | partial (intervals only) | observed | `references/ete-decoding.md`, `scripts/ete_decode.py`, `assets/ete/socrates-5.15.41/evidence/decode-result.json` |
 | PIE/`.so` runtime address mapping | A dependency-free `PT_LOAD` mapper checks runtime PC, load bias, file offset, and BSS-only ranges; end-to-end tombstone integration is not measured | partial | inferred | `references/arm-tracing-elf-and-crash.md`, `scripts/elf_runtime.py` |
 | Library mapping and PLT resolution | Mapping verified on a real target; the PLT script was broken and fixed after a false negative on a symbol that exists and is called | ok | observed | `references/native-and-so.md`, `scripts/lib_map.py`, `scripts/elf_plt.py` |
 | Native crash triage and swallowed stacks | Unmeasured, including on the one target whose crash reporter hid exactly the stack the tool claims to recover | partial | unverified | `references/native-tamper-and-suicide.md`, `scripts/native_crash.py`, `scripts/grab_crash.py` |
@@ -103,3 +104,8 @@ copy never has to fail silently at a path it cannot open.
 - Treating silence in `evidence/known-limitations.md`'s never-exercised list as support for a route.
 - Presenting a route as verified when the artifact that was verified is not the artifact being handed
   over — the claim ladder in `references/verification.md` exists for exactly this gap.
+
+## ETE 解码记录的限制
+
+小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
+新目标必须重新采集 maps/真实 ELF/trace 并验证，不能套用历史计数。旧 source/AUX 记录与新解码聚合证据分开保存；原始真实目标输入只留本地，不随 skill 发布。

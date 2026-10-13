@@ -370,17 +370,18 @@ CAPABILITIES = {
         'name': 'Static ELF / .so analysis and constant patching',
         'required': ['python39'],
         'optional': ['module:capstone'],
-        'scripts': ['elf_plt.py', 'elf_runtime.py', 'so_constpatch.py', 'svc_scan.py', 'native_crash.py'],
+        'scripts': ['elf_plt.py', 'elf_runtime.py', 'so_constpatch.py', 'svc_scan.py', 'native_crash.py',
+                    'ete_target_manifest.py', 'ete_addr_space.py'],
         'note': 'elf_plt, elf_runtime and so_constpatch do not need capstone; svc_scan refuses to '
                 'run without it, and native_crash needs it for the arm64 disassembly',
     },
     'device_hw_trace': {
-        'name': 'ARM hardware-trace capability probe (CoreSight/ETM/SPE/BRBE hints)',
+        'name': 'ARM hardware-trace probe and exact-socrates native-range decode',
         'required': ['python39', 'tool:adb', 'device'],
         'optional': ['device_root'],
-        'scripts': ['device_hw_probe.py', 'ete_module.py'],
-        'note': 'the probe separates hardware hints, kernel exposure, recorder event names and '
-                'a bounded cs-etm smoke test; a visible node is not treated as a usable trace',
+        'scripts': ['device_hw_probe.py', 'ete_module.py', 'ete_decode.py'],
+        'note': 'root is optional only for the read-only probe; module load and decode require root/exact baseline. '
+                'ete_decode uses device OpenCSD and validates requested ELF ranges; gaps are not a full trace',
     },
     'static_jadx': {
         'name': 'jadx decompilation',
@@ -1013,6 +1014,8 @@ SCRIPT_CAPABILITIES = {
     'so_constpatch.py': ['static_native'],
     'svc_scan.py': ['static_native'],
     'native_crash.py': ['static_native'],
+    'ete_target_manifest.py': ['static_native'],
+    'ete_addr_space.py': ['static_native'],
     'smtool.py': ['smali_roundtrip'],
     'patch_smali.py': ['smali_roundtrip'],
     'repack.py': ['repack_unsigned', 'repack_signed'],
@@ -1049,6 +1052,7 @@ SCRIPT_CAPABILITIES = {
     'mt_mcp_probe.py': ['device_static'],
     'device_hw_probe.py': ['device_hw_trace'],
     'ete_module.py': ['device_hw_trace'],
+    'ete_decode.py': ['device_hw_trace'],
     'tls_check.py': ['protocol_decode'],
     'probe_api.py': ['protocol_decode'],
     'sig_probe.py': ['frida_dynamic', 'static_dex'],

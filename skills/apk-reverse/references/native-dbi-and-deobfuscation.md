@@ -16,7 +16,7 @@ this function really execute, and how often", it is here.
 `references/evidence-summary.md` §The capability matrix. `inferred` = it follows from measured behaviour or
 from documented behaviour of the tool. `unverified` = reported by someone else or reasoned from
 first principles without a run. The distinction matters more here than usual, because the honest
-result of this pass is that **the trace pipeline is unverified on the test device** — see.
+result of this historical Stalker pass is that **the Stalker pipeline is unverified on the test device**. This does not negate the later ETE native-range evidence in `references/ete-decoding.md`; neither record proves a gap-free execution path or business semantics.
 
 ## 1. Which obfuscation are you looking at
 

@@ -41,7 +41,7 @@
 
 另外还有一样在结尾、应当被**扣住**的东西：**「done」**有定义（六项）。一份干净的日志不在其中。少于六项全部达成，就只是一个检查点，应当作为检查点汇报，并说明还剩什么。
 
-如果你是正在读这段的 agent：成本最低的第一条命令是 `python skills/apk-reverse/scripts/doctor.py`。它会告诉你这里存在哪些工具、哪些脚本真的能跑，以及环境里是否已经有什么东西在污染你的测量结果。
+如果你是正在读这段的 agent：仓库根目录下成本最低的第一条命令是 `python skills/apk-reverse/scripts/doctor.py`。独立安装时把仓库前缀替换为已安装 skill 的实际根目录后调用 doctor.py 或 ETE 脚本。它报告可用工具、脚本与环境问题。本 README 的 `skills/apk-reverse/` 路径均相对仓库；安装副本直接以 `apk-reverse/` 为根，其下就是 `scripts/`、`references/` 和 `assets/`，ETE 入口也遵循此规则。
 
 ## 它擅长什么
 
@@ -63,6 +63,7 @@
 - 当逆向的成本高于调用时，**调用例程而不是逆向它**：在宿主上做模拟执行，或把一个活函数通过 Frida RPC 服务化。
 - 当一个 native 函数被 OLLVM 碾平成状态机时，去读**指令级执行证据**——包括在真实设备上实测到的 Stalker 反咬的两种方式。
 - **重启后恢复已验证的 K60 Pro/socrates ETE source 驱动**：精确内核 `.ko`、构建/ABI 材料和脱敏 AUX 采集证据随 skill 保存。入口为 `skills/apk-reverse/references/ete-socrates-module.md`；先执行 `python skills/apk-reverse/scripts/ete_module.py --verify-only`，需要重载时显式使用 `--load`。没有配置开机自动加载，完整指令路径解码仍未验证。
+- **复用 ETE native 指令区间解码**：精确 socrates 基线的设备 OpenCSD 工具、采集时 maps/PT_LOAD/真实 ELF 字节验证及合成测试随 skill 安装；新目标重新采集并验证，入口为 `skills/apk-reverse/references/ete-decoding.md`。小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
 - 认出**用户态 hooking 根本够不到那个检查**的情况（裸 `svc` 系统调用、`init_array` 早期检测）、上下相邻层实际能做什么，以及什么时候继续升级是错误答案。
 - 处理**非 REST 的协议**——无 schema 的 protobuf、gRPC、QUIC/HTTP3——以及无视系统信任库的 native 侧证书固定（pinning）。
 - **直接在手机上工作**：MT Manager 的编辑/重打包/签名流程及其 APK MCP 接口、LSPosed Manager、设备上的数据检查，与 PC 工具链并用，而不是用它来替代 PC 工具链。

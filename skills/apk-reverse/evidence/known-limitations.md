@@ -79,9 +79,10 @@ built on them has nothing to check itself against.
   refusal from the VMP-boundary sample; the native certificate-pinning row (it needs a gradle+NDK
   build this host cannot do); an end-to-end Dart string patch repacked and installed; and byte
   agreement between two independent dumpers.
-- **No real OLLVM trace and no trace pipeline verified on a device.** Exclusion keeps a target alive
-  but does not restore event delivery, and a zero-event trace is a boundary to identify rather than a
-  recipe to follow.
+- **The historical Stalker experiment produced no real OLLVM trace.** Exclusion keeps a target alive
+  but does not restore event delivery. This is not a verdict on the later ETE native-range capability
+  in `references/ete-decoding.md`, which remains limited to validated intervals rather than semantics.
+- **ETE decoding limits:** 小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
 
 ## Conclusions that changed — an older copy may still state the old one
 

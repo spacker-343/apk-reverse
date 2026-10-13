@@ -36,7 +36,7 @@ route was not measured on this repository's evidence**. Treat them as leads with
 | Module-side delivery | an LSPosed/Xposed module when a repack is refused — `lsposed-and-modules.md` |
 | Extraction shells and the VMP boundary | how to *measure* that the bodies are empty, and where recovery stops — `advanced-unpacking.md` |
 | Calling a routine instead of reading it | emulation (Unidbg/Unicorn) versus service-ifying the live function over Frida RPC — `emulation-and-rpc.md` |
-| Instruction-level tracing and ARM hardware capability probing | Stalker/QBDI/ETE terminology and read-only probe; one exact socrates kernel has observed ETE AUX capture and a bundled reload module, but full path decoding is unverified — `native-dbi-and-deobfuscation.md`, `arm-tracing-elf-and-crash.md`, `ete-socrates-module.md` |
+| Instruction-level tracing and ARM hardware capability probing | Stalker/QBDI terminology and probe; exact socrates ETE module, AUX capture and maps/PT_LOAD/ELF-validated native ranges observed, but gaps/full path and semantics unresolved — `native-dbi-and-deobfuscation.md`, `arm-tracing-elf-and-crash.md`, `ete-socrates-module.md`, `ete-decoding.md` |
 | Protocols beyond REST | schema-free protobuf, gRPC frames, QUIC/HTTP3 limits, native-side pinning — `protocol-reverse.md` |
 | When userspace hooking cannot reach the check | raw `svc`, `init_array`-early detection, the kernel-route map and its version gate — `kernel-and-environment-hardening.md` |
 | Split APK / App Bundle sets | reading a set, merge versus unified re-signing, the install refusal each mistake produces — `split-apk.md` |

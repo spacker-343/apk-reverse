@@ -13,10 +13,12 @@ SELinux 始终 Enforcing，没有刷 boot/vendor_boot/vendor_dlkm，没有配置
 
 短时用户态录制返回 0，产生 2,166,016 字节 AUX 数据、2,433,042 字节记录文件，
 `simpleperf dump` 识别 cs-etm:u、auxtrace_info 和 AUXTRACE；结束后八个 source 的 enable_source=0。
-这是 **硬件采集 + 文件结构验证**，不是完整 ETE 指令/分支路径解码，也不是真实 APK 还原。
+这份旧记录是 **硬件采集 + 文件结构验证**，不是完整 ETE 指令/分支路径解码，也不是真实 APK 还原。
+后续独立解码记录已验证真实 native 指令区间，工具和复用步骤见 `references/ete-decoding.md`；不倒改旧样本结论。
 
-`unverified`：真实 APK、长时运行、睡眠唤醒、内核态、地址过滤、CPU 迁移与丢包后的路径正确性，
-以及用本模块做 OLLVM/VMP 语义恢复。禁止把这条局部成功推广为所有 K60 Pro/所有内核。
+`unverified`：无缺口完整路径、长时/睡眠唤醒、内核态、跨 CPU 全序、过滤失败根因，以及 OLLVM/VMP 语义恢复。
+小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
+禁止把这条局部成功推广为所有 K60 Pro/所有内核/新目标；新目标必须重采 maps/真实 ELF 并验证。
 
 ## 随 skill 携带的资产
 
@@ -75,7 +77,7 @@ simpleperf dump -i /data/local/tmp/ete-exact-smoke.data
 
 正式目标采集需要保留 ELF/Build ID、maps、执行时代码镜像、线程/CPU、触发输入、
 采集命令、工具版本与丢包信息。`--no-dump-symbols` 仅用于小范围 smoke，不能替代符号归档。
-选用明确支持 ETE v1 格式的解码器，并用已知路径验证结果，再交给 `elf_runtime.py` 地址换算。
+使用 `scripts/ete_decode.py` 的设备原生 OpenCSD 路线，见 `references/ete-decoding.md`；先做用户态对照，再以 maps/PT_LOAD/真实 ELF 字节验证目标区间。
 Stalker 日志解析器不是 perf AUX 解码器，不能把原始 AUX 直接交给 `stalker_report.py`。
 
 ## 失败分流与恢复

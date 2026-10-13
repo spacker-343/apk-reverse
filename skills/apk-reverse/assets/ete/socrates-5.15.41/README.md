@@ -50,9 +50,9 @@ python skills/apk-reverse/scripts/device_hw_probe.py --expect-root --json
 python skills/apk-reverse/scripts/device_hw_probe.py --expect-root --smoke-test --duration 1 --json
 ```
 
-采集流程、已执行命令、解码到 ELF 的边界见 `references/ete-socrates-module.md`（skill 根目录）。
-八个 ETE v1.0 source 和约 2.17 MB AUX 数据已经在归档记录中观察到；完整指令路径解码、
-真实 APK 的 OLLVM/VMP 还原、睡眠唤醒和长时稳定性尚未验证。
+旧采集流程见 `references/ete-socrates-module.md`；新解码入口、maps/PT_LOAD/ELF 验证和复用步骤见 `references/ete-decoding.md`（均相对 skill 根目录）。
+后续真实 native 区间已验证，但完整路径、OLLVM/VMP 还原、睡眠唤醒与长时稳定性未验证。
+小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
 
 ## 构建材料与不上传的内容
 
@@ -60,3 +60,13 @@ python skills/apk-reverse/scripts/device_hw_probe.py --expect-root --smoke-test 
 源码是上游 GPL-2.0 驱动；版权和 SPDX 头原样保留，二进制对应同一 GPL-2.0 源码。
 没有把约 780 MB 的官方源码/Clang 压缩包、stock 内核镜像、原始手机日志或 trace 上传 Git。
 固定下载地址、输入哈希及构建注意事项见 `provenance.json` 和 `build/README.md`。
+
+## 解码资产
+
+- `decode/`：设备 OpenCSD harness、deframe/trace-ID/ELF 坐标依赖、独立合成 fixture 与 23 项测试。
+- `evidence/decode-result.json`：脱敏聚合历史测量；不携带真实目标 APK/ELF/maps/perf 或完整 dump。
+- `evidence/decode-publication.json`：本次资产范围与输入保护说明；旧 runtime/publish-check 记录不倒改。
+- skill 的三个 `scripts/ete_*.py` 新入口转发到同一 backend，安装后无需原项目。
+  Python 3.9+、ADB 和精确 root 设备；Capstone 仅为可选助记符依赖。
+
+`SHA256SUMS.txt` 覆盖发布资产（自身除外），固定 `.ko` 字节与 GPL 来源保持不变。

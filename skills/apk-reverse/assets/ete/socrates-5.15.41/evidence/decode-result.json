@@ -1,0 +1,100 @@
+{
+  "schema": "ete-native-range-evidence/1",
+  "strength": "observed",
+  "device": "socrates",
+  "kernel": "5.15.41-android13-8-00015-gde2a4c25826b-ab9439604",
+  "recorder": "simpleperf 1.build.V14.0.18.0.TMKCNXM",
+  "reports": {
+    "target": {
+      "instruction_ranges": 610502,
+      "unique_ranges": 19918,
+      "element_counts": {
+        "NO_SYNC": 18839,
+        "TRACE_ON": 22097,
+        "PE_CONTEXT": 22302,
+        "INSTR_RANGE": 610502,
+        "EXCEPTION": 56
+      },
+      "no_sync_reasons": {
+        " [reset-decoder]": 14957,
+        " [bad-packet]": 1536,
+        " [overflow]": 2346
+      },
+      "a64_size_mismatches_unique": 0,
+      "full_trace_verified": false,
+      "stderr_bytes": 0,
+      "mapped_range_occurrences": {
+        "target_module_a": 609195,
+        "target_module_b": 1307
+      },
+      "unique_ranges_in_requested_modules": {
+        "target_module_a": 19602,
+        "target_module_b": 316
+      },
+      "i_async_candidates": 62773,
+      "unprocessed_tail_bytes": 0,
+      "native_decoder_rc": 0,
+      "harness_rc": 0,
+      "source_sha256": "e4982ccf3e7e009b0c462b0cac17671b2aa3e36775870cdcf75edf982d21b249"
+    },
+    "user_control": {
+      "instruction_ranges": 3158020,
+      "unique_ranges": 374,
+      "element_counts": {
+        "NO_SYNC": 43134,
+        "TRACE_ON": 43135,
+        "PE_CONTEXT": 43277,
+        "INSTR_RANGE": 3158020,
+        "EXCEPTION": 6
+      },
+      "no_sync_reasons": {
+        " [reset-decoder]": 5,
+        " [overflow]": 43129
+      },
+      "a64_size_mismatches_unique": 0,
+      "full_trace_verified": false,
+      "stderr_bytes": 0,
+      "mapped_range_occurrences": {
+        "/system/bin/sh": 1138751
+      },
+      "unique_ranges_in_requested_modules": {
+        "/system/bin/sh": 227
+      },
+      "i_async_candidates": 43192,
+      "unprocessed_tail_bytes": 0,
+      "native_decoder_rc": 0,
+      "harness_rc": 0,
+      "source_sha256": "ba64d522f24c345260e681d24336324257a7ff7ac68f077b9d8be753559f57d6"
+    },
+    "small_filtered": {
+      "instruction_ranges": 0,
+      "unique_ranges": 0,
+      "element_counts": {
+        "NO_SYNC": 2163
+      },
+      "no_sync_reasons": {
+        " [reset-decoder]": 1933,
+        " [bad-packet]": 230
+      },
+      "a64_size_mismatches_unique": 0,
+      "full_trace_verified": false,
+      "stderr_bytes": 0,
+      "mapped_range_occurrences": {},
+      "unique_ranges_in_requested_modules": {},
+      "i_async_candidates": 8357,
+      "unprocessed_tail_bytes": 0,
+      "native_decoder_rc": 0,
+      "harness_rc": 1,
+      "source_sha256": "44d1087099b20b6a7c09f7c2c9aae7d959e54772346ff477cb8bf97e1dccef4e"
+    }
+  },
+  "runtime_trace_decoding_verified": true,
+  "full_trace_verified": false,
+  "limits": "小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。",
+  "not_shipped": [
+    "real target APK/ELFs/maps/perf traces",
+    "raw decoder dumps",
+    "device serial and host user paths"
+  ],
+  "revalidation": "Historical measurements, not a guarantee for a new target. Record its maps, exact ELF bytes/hashes, trigger, threads/CPUs and gaps; run the installed decoder and validate addresses."
+}

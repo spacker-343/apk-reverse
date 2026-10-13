@@ -57,10 +57,12 @@ And one thing at the end that is meant to be *withheld*: **"done"** has a defini
 clean log is not one of them. Anything short of all six is a checkpoint, and should be reported as a
 checkpoint with what remains.
 
-If you are an agent reading this: the cheapest possible first command is
-`python skills/apk-reverse/scripts/doctor.py`. It tells you which of these tools exist here, which
-scripts can actually run, and whether something in the environment is already poisoning your
-measurements.
+If you are an agent reading this: from the repository root, the cheapest first command is
+`python skills/apk-reverse/scripts/doctor.py`. For an installed copy, replace the repository prefix
+with the actual installed skill root before invoking doctor.py or the ETE scripts.
+It reports available tools, runnable scripts and environment hazards. All `skills/apk-reverse/`
+paths in this README are repository-relative; installed copies start at the `apk-reverse/` root,
+with `scripts/`, `references/` and `assets/` directly underneath. The same rule applies to ETE entrypoints.
 
 ## What it is good at
 
@@ -113,6 +115,10 @@ measurements.
   `skills/apk-reverse/references/ete-socrates-module.md` and
   `python skills/apk-reverse/scripts/ete_module.py --verify-only`; use `--load` explicitly to reload.
   No boot autoload is installed, and full instruction-path decoding remains unverified.
+- Reusing **ETE native-range decoding** on that exact socrates baseline: installed OpenCSD wrapper,
+  capture-time maps/PT_LOAD/hashed ELF validation and synthetic tests are bundled. See
+  `skills/apk-reverse/references/ete-decoding.md`. The filtered sample remains NO_SYNC-only with
+  unresolved cause; successful samples have reset/overflow gaps, so this is not a gap-free path or business semantics.
 - Recognising when **userspace hooking cannot reach the check at all** (raw `svc` syscalls,
   `init_array`-early detection), what the next layer up and down can actually do, and when escalating
   is the wrong answer.

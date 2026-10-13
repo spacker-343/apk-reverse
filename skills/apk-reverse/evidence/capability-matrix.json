@@ -161,7 +161,7 @@
       "benchmark_rows": ["B6"],
       "evidence": ["references/native-dbi-and-deobfuscation.md", "scripts/stalker_trace.js", "scripts/stalker_report.py"],
       "evidence_not_shipped": ["docs/tool-verification/EXTENSION-stalker-exclude.md (repository root, not shipped)", "tests/benchmark.md row B6 (repository root, not shipped)"],
-      "limits": "Split result: following a hot libc export with no exclusions kills the process, and excluding 20 system modules keeps it alive -- but delivery is still zero events (blocks=0 blk=0 calls=0). Exclusion is therefore not the fix for a trace that reports nothing, which contradicts the framing that lists 'no events' among the symptoms exclusion addresses. Two harness traps that manufacture a false zero-event result were fixed in the same pass. No real OLLVM trace was produced, and no trace pipeline is verified on the test device."
+      "limits": "Historical Stalker result: following a hot libc export without exclusions kills the process; excluding 20 system modules keeps it alive but delivers zero events (blocks=0 blk=0 calls=0). Exclusion does not fix event delivery. Two harness traps were fixed; no real OLLVM Stalker trace was produced. This does not negate later ETE native-range evidence, which does not prove full paths or semantics."
     },
     {
       "capability": "native-library-mapping-and-plt-resolution",
@@ -415,6 +415,20 @@
       "evidence": ["references/server-api.md", "references/handoff-boundaries.md"],
       "evidence_not_shipped": ["docs/tool-verification/README.md (repository root, not shipped)"],
       "limits": "Determining who owns a gate is covered; breaking an authorization the server performs is not. There is no client-side patch that reaches it, and the honest deliverable is the residual: which authority decides, and why the artifact cannot change it."
+    }
+    ,
+    {
+      "capability": "socrates-ete-native-range-decoding",
+      "group": "native",
+      "status": "partial",
+      "route_measured": true,
+      "strength": "observed",
+      "benchmark_rows": [],
+      "evidence": ["references/ete-decoding.md", "scripts/ete_decode.py", "scripts/ete_target_manifest.py", "scripts/ete_addr_space.py", "assets/ete/socrates-5.15.41/evidence/decode-result.json"],
+      "evidence_not_shipped": [],
+      "runtime_trace_decoding_verified": true,
+      "full_trace_verified": false,
+      "limits": "小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。 Exact socrates kernel and device OpenCSD only; each new target needs its own capture-time maps and hashed real ELF bytes. Historical raw target inputs are not shipped."
     }
   ]
 }
