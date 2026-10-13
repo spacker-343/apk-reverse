@@ -23,6 +23,7 @@ On the root README:
   6. every path it names is an explicit `skills/<name>/...` path that exists
 """
 import ast
+import hashlib
 import os
 import re
 import subprocess
@@ -256,6 +257,21 @@ def check_readme():
         print('  BARE PATH %s' % m.group(0))
 
 
+# The user requested publishing this exact runtime-tested binary, unchanged. It contains
+# disclosed DWARF build paths; exclude it only after identity verification, never by suffix.
+PUBLIC_BINARY = 'skills/apk-reverse/assets/ete/socrates-5.15.41/module/coresight-etm4x.ko'
+PUBLIC_BINARY_SHA256 = '285f8be46dbba1003d5b2d1c0bfb32c7d4dcbc81397145c428adf4ded1960fb4'
+
+
+def reviewed_binary_excludes(root):
+    path = os.path.join(root, PUBLIC_BINARY)
+    if not os.path.isfile(path):
+        return []
+    with open(path, 'rb') as fh:
+        digest = hashlib.sha256(fh.read()).hexdigest()
+    return [PUBLIC_BINARY] if digest == PUBLIC_BINARY_SHA256 else []
+
+
 def check_leaks():
     """No target identity on the committed surface.
 
@@ -279,12 +295,16 @@ def check_leaks():
     if proc.returncode != 0 or not proc.stdout.strip():
         print('  SKIP git ls-files unavailable (not a checkout?)')
         return
+    binary_excludes = reviewed_binary_excludes(ROOT)
+    for path in binary_excludes:
+        print('  reviewed exact binary (DWARF paths retained): %s SHA256=%s' % (path, PUBLIC_BINARY_SHA256))
+    extra = [arg for path in binary_excludes for arg in ('--exclude', path)]
     with tempfile.NamedTemporaryFile('w', suffix='.txt', delete=False, encoding='utf-8') as fh:
         fh.write(proc.stdout)
         listing = fh.name
     try:
         run = subprocess.run([sys.executable, scanner, '--root', ROOT,
-                              '--files-from', listing, '--max', '10'],
+                              '--files-from', listing, '--max', '10'] + extra,
                              capture_output=True, encoding='utf-8', errors='replace')
     finally:
         os.unlink(listing)

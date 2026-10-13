@@ -108,6 +108,11 @@ measurements.
   execution on the host, or a live function service-ified over Frida RPC.
 - Reading **instruction-level execution evidence** when a native function has been flattened into a
   state machine by OLLVM — including the two ways Stalker was measured to bite back on a real device.
+- Recovering the **recorded K60 Pro/socrates ETE source driver after reboot**: the exact-kernel
+  `.ko`, build/ABI inputs and redacted AUX capture evidence ship inside the skill. Start with
+  `skills/apk-reverse/references/ete-socrates-module.md` and
+  `python skills/apk-reverse/scripts/ete_module.py --verify-only`; use `--load` explicitly to reload.
+  No boot autoload is installed, and full instruction-path decoding remains unverified.
 - Recognising when **userspace hooking cannot reach the check at all** (raw `svc` syscalls,
   `init_array`-early detection), what the next layer up and down can actually do, and when escalating
   is the wrong answer.

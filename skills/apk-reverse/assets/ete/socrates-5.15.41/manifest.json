@@ -1,0 +1,16 @@
+{
+  "device": "socrates",
+  "soc": "SM8550",
+  "kernel": "5.15.41-android13-8-00015-gde2a4c25826b-ab9439604",
+  "fingerprint": "Redmi/socrates/socrates:13/TKQ1.220905.001/V14.0.18.0.TMKCNXM:user/release-keys",
+  "module": "module/coresight-etm4x.ko",
+  "module_bytes": 1647368,
+  "module_sha256": "285f8be46dbba1003d5b2d1c0bfb32c7d4dcbc81397145c428adf4ded1960fb4",
+  "module_name": "coresight_etm4x",
+  "depends": ["coresight"],
+  "load_parameters": {"boot_enable": 0, "pm_save_enable": 1},
+  "observed_source_count": 8,
+  "recording_verified": true,
+  "instruction_path_decoding_verified": false,
+  "autoload_configured": false
+}

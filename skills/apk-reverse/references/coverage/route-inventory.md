@@ -36,7 +36,7 @@ route was not measured on this repository's evidence**. Treat them as leads with
 | Module-side delivery | an LSPosed/Xposed module when a repack is refused — `lsposed-and-modules.md` |
 | Extraction shells and the VMP boundary | how to *measure* that the bodies are empty, and where recovery stops — `advanced-unpacking.md` |
 | Calling a routine instead of reading it | emulation (Unidbg/Unicorn) versus service-ifying the live function over Frida RPC — `emulation-and-rpc.md` |
-| Instruction-level tracing and ARM hardware capability probing | Stalker/QBDI/ETE terminology, trace-to-CFG boundaries, and a read-only CoreSight/perf probe; ETE recording is only documented/partially verified and device-specific | `native-dbi-and-deobfuscation.md`, `arm-tracing-elf-and-crash.md`, `scripts/device_hw_probe.py` |
+| Instruction-level tracing and ARM hardware capability probing | Stalker/QBDI/ETE terminology and read-only probe; one exact socrates kernel has observed ETE AUX capture and a bundled reload module, but full path decoding is unverified — `native-dbi-and-deobfuscation.md`, `arm-tracing-elf-and-crash.md`, `ete-socrates-module.md` |
 | Protocols beyond REST | schema-free protobuf, gRPC frames, QUIC/HTTP3 limits, native-side pinning — `protocol-reverse.md` |
 | When userspace hooking cannot reach the check | raw `svc`, `init_array`-early detection, the kernel-route map and its version gate — `kernel-and-environment-hardening.md` |
 | Split APK / App Bundle sets | reading a set, merge versus unified re-signing, the install refusal each mistake produces — `split-apk.md` |
@@ -62,8 +62,8 @@ dependency yourself.
 ## Not covered — say so rather than improvise
 
 Unity / IL2CPP logic recovery · React Native, Hermes bytecode and Cordova internals · iOS of any kind ·
-defeating a server-side authority · an off-the-shelf unpacker · an anti-detection arms race · building
-and shipping a kernel module · a Stalker trace guaranteed on every device.
+defeating a server-side authority · an off-the-shelf unpacker · an anti-detection arms race · general
+kernel development (the recorded socrates ETE module is a narrow exception) · a Stalker trace guaranteed on every device.
 
 Each has a reason and, where one exists, an evidence boundary — in `references/coverage-and-limits.md`.
 **Silence in that record is not support**, and a route that is only "documented" is not a route that

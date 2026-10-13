@@ -66,8 +66,9 @@ reference file is not named here, or when a script is not named here.
 | A module's entry class is missing from its own dex (so it can never load), yet the package installs, enables and looks healthy | `references/lsposed-and-modules.md` — check `assets/xposed_init` against the dex's actual classes; installation is not evidence of anything |
 | You only need to **call** the target's own routine (sign, token, encrypt) rather than change the app | `references/emulation-and-rpc.md` — emulate it, or service-ify the live function over Frida RPC |
 | A native function is a many-thousand-line `switch` state machine, or the decompiler's output is meaningless | `references/native-dbi-and-deobfuscation.md` — OLLVM shapes, a Stalker trace, and how far a trace actually gets you |
-| `Stalker.follow` installs but no events arrive, following a hot libc export crashes the process, or a CoreSight probe reports `cs-etm` but recording says `etm devices are not available` | `references/native-dbi-and-deobfuscation.md` §6 failure modes, then `references/arm-tracing-elf-and-crash.md` — separate software DBI failure from hardware trace-source failure |
+| `Stalker.follow` installs but no events arrive, following a hot libc export crashes the process, or a CoreSight probe reports `cs-etm` but recording says `etm devices are not available` | `references/native-dbi-and-deobfuscation.md` §6 failure modes, then `references/arm-tracing-elf-and-crash.md` — on the recorded socrates baseline, load `references/ete-socrates-module.md` before attempting driver recovery |
 | A tombstone PC does not match the bytes in a local PIE/`.so`, or a trace address looks impossible | `references/arm-tracing-elf-and-crash.md` §4 — map runtime address through `PT_LOAD` and load bias before disassembling |
+| The socrates ETE sources disappear after reboot, or you need the verified source driver to reload | `references/ete-socrates-module.md` — bundled `.ko`, exact-kernel/hash gates, explicit reload and capture evidence |
 | The traffic is protobuf/gRPC/QUIC, or a proxy sees TLS but requests still fail on a Flutter app | `references/protocol-reverse.md` — schema-less protobuf, frame capture, and native-side pinning |
 | Userspace hooks land and the app still dies: the check reads `/proc/self/status` through a raw `svc`, or runs before `JNI_OnLoad` | `references/kernel-and-environment-hardening.md` — what the next layer up and down can actually do, and when to stop |
 | You must edit, repack, sign or inspect the APK **from the phone itself** | `references/on-device-tooling.md`, `scripts/mt_mcp_probe.py` |
@@ -125,12 +126,13 @@ _54 row(s) below the header._
 | `references/emulation-and-rpc.md` | You need to **call** a routine rather than change the app — a signing routine, a token, a cipher: emulated execution (Unidbg/Unicorn) with its environment-filling cost, versus service-ifying the live function over Frida RPC |
 | `references/native-dbi-and-deobfuscation.md` | A native function is an OLLVM state machine, or you need instruction-level execution evidence: Stalker traces, the trace-to-CFG route, the Stalker/QBDI/emulation decision, and the **measured** zero-event and crash boundaries |
 | `references/arm-tracing-elf-and-crash.md` | You need ARM ETE/ETM/SPE/BRBE terminology, a device capability probe, PIE/`.so` runtime-address mapping, native crash plus trace triage, or the OLLVM/VMP trace boundary |
+| `references/ete-socrates-module.md` | The recorded K60 Pro/socrates kernel needs its bundled ETE source module after reboot; exact ABI/hash baseline, explicit reload, original build/capture evidence and decoding limits |
 | `references/protocol-reverse.md` | The traffic is protobuf/gRPC/QUIC, or a proxy sees TLS but requests still fail on a Flutter app — schema recovery, frame capture, and native-side certificate pinning |
 | `references/kernel-and-environment-hardening.md` | Userspace hooking provably cannot reach the check — raw `svc` syscalls, `init_array`-early detection: what each layer can still do, the kernel-route map with its version gate, and when escalating is wrong |
 | `references/on-device-tooling.md` | Working **from the phone itself**: MT Manager edit/repack/sign and its built-in APK MCP, LSPosed Manager, Termux+frida, and on-device data inspection |
 | `references/split-apk.md` | The target is a **split APK / App Bundle set** (`base.apk` + `split_config.*.apk`), or `pm path <PKG>` returned several files: reading a set, merge versus unified re-signing, and the install refusal each mistake produces |
 
-_43 row(s) below the header._
+_44 row(s) below the header._
 
 ## Script index (no longer inline in `SKILL.md`)
 
@@ -165,6 +167,7 @@ _43 row(s) below the header._
 | `scripts/preflight.py` | Read-only environment check before every experiment block: device, root, ABI/translation, clock skew, leftover proxy/forwards, dead device server. Run this before blaming a patch. |
 | `scripts/lib_map.py` | What is **actually mapped** into a live process: per-library path, base, architecture (`ELF e_machine`), and classification (system / from-APK / runtime-materialized). Answers "which library and which ABI is really executing". |
 | `scripts/device_hw_probe.py` | Read-only Android probe for root, CoreSight/`cs_etm`, SPE/BRBE hints, hardware breakpoint interfaces, and an optional bounded ETM smoke test; visible nodes are not treated as usable trace |
+| `scripts/ete_module.py` | Verify the bundled socrates ETE binary on the host, read device baseline/status by default, or explicitly reload with `--load`; exact device/kernel/fingerprint, dependency, hash and source gates; no autoload or tracing |
 | `scripts/elf_plt.py` | Resolve a PLT stub to its imported symbol (x86_64 + aarch64) from the **relocation table**, list a symbol's callers, and **byte-diff two libraries naming the symbol each changed stub belongs to**. Run before patching any stub |
 | `scripts/elf_runtime.py` | Map a PIE/`.so` runtime PC to an ELF file offset through checked `PT_LOAD` segments; refuses addresses in unmapped or BSS-only ranges |
 | `scripts/so_constpatch.py` | Same-length rewrite of an isolated string constant, for **redirecting a library load instead of defeating a check**. Enforces equal length, refuses substrings of longer identifiers, reports constant-pool hits, patches inside an APK or a bare `.so`. |

@@ -19,3 +19,8 @@
 *.apk   binary
 *.dex   binary
 *.so    binary
+*.ko    binary
+
+# Original Kbuild empty namespace column and upstream license EOF retained byte-for-byte.
+skills/apk-reverse/assets/ete/socrates-5.15.41/abi/Module.symvers whitespace=-blank-at-eol
+skills/apk-reverse/assets/ete/socrates-5.15.41/Linux-syscall-note.txt whitespace=-blank-at-eof

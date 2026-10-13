@@ -62,6 +62,7 @@
 - 分辨真实内存 dump 与**抽取壳骨架**，并知道哪条恢复路线适用——包括当 `frida` 本身被拒绝时走 root 侧 dump。这次测量能看见什么、看不见什么，写在 `skills/apk-reverse/references/advanced-unpacking.md`。
 - 当逆向的成本高于调用时，**调用例程而不是逆向它**：在宿主上做模拟执行，或把一个活函数通过 Frida RPC 服务化。
 - 当一个 native 函数被 OLLVM 碾平成状态机时，去读**指令级执行证据**——包括在真实设备上实测到的 Stalker 反咬的两种方式。
+- **重启后恢复已验证的 K60 Pro/socrates ETE source 驱动**：精确内核 `.ko`、构建/ABI 材料和脱敏 AUX 采集证据随 skill 保存。入口为 `skills/apk-reverse/references/ete-socrates-module.md`；先执行 `python skills/apk-reverse/scripts/ete_module.py --verify-only`，需要重载时显式使用 `--load`。没有配置开机自动加载，完整指令路径解码仍未验证。
 - 认出**用户态 hooking 根本够不到那个检查**的情况（裸 `svc` 系统调用、`init_array` 早期检测）、上下相邻层实际能做什么，以及什么时候继续升级是错误答案。
 - 处理**非 REST 的协议**——无 schema 的 protobuf、gRPC、QUIC/HTTP3——以及无视系统信任库的 native 侧证书固定（pinning）。
 - **直接在手机上工作**：MT Manager 的编辑/重打包/签名流程及其 APK MCP 接口、LSPosed Manager、设备上的数据检查，与 PC 工具链并用，而不是用它来替代 PC 工具链。

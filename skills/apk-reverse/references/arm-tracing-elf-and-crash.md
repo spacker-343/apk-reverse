@@ -2,7 +2,9 @@
 
 **什么时候读这篇：**你看到的是 arm64 的 PIE 可执行文件、`.so` 共享库、native 崩溃、OLLVM 控制流平坦化、native VMP 解释器，或者有人说“手机支持 ETE/SPE/BRBE，所以可以直接脱壳”。这篇把这些词拆开，给出一条不会把“接口存在”误报成“能力可用”的路线。
 
-> **强度说明：**本篇的判断分为 `observed`、`inferred`、`unverified`。文中方法主要是 `inferred`：机制有公开定义或由相邻工具支持，但本仓库没有把 ETE 在每一台 Android 手机上跑通。运行 `scripts/device_hw_probe.py` 后，应该把你自己的输出保存下来，再给本次目标标注强度。
+**Load this when:** ARM tracing names, ELF/crash addresses, or OLLVM/VMP path evidence decide the next route.
+
+> **强度说明：**分为 `observed`、`inferred`、`unverified`。socrates 精确内核上的八核 ETE 初始化和短时 AUX 采集已有 `observed` 记录与随附模块，见 `references/ete-socrates-module.md`；完整指令路径解码和其他设备仍未验证。运行 `scripts/device_hw_probe.py` 保存本次输出，不能将单机记录推广到所有 Android。
 
 ## 1. 先建立一张“能力分层图”
 
@@ -48,6 +50,7 @@ python skills/apk-reverse/scripts/device_hw_probe.py --smoke-test --duration 1
 
 - `interface_visible_but_not_recorded`：有线索或接口，但不能录制；不要称为“ETE 可用”。
 - `recorder_listed_not_tested`：录制器列出事件，但还没做采集；只能说“待验证”。
+- `record_failed`：已经尝试但失败，不能降级描述成“未测试”；保留错误与清理结果。
 - `trace_recorded`：只说明录制器生成了文件；还要检查 trace 是否能解码、地址是否对齐、是否丢包。
 
 ## 2. ETE/ETM 是什么
@@ -100,6 +103,8 @@ simpleperf list 有 cs-etm
 ```
 
 这不是 root 失败，而是“录制器知道这个事件名，但没有可用 trace source”的典型形状。
+
+**socrates 已验证例外：**设备树有 ete0–ete7，stock sink/link 与基础 CoreSight 已在，缺少 ETM4x source 驱动。归档中的匹配模块已补齐并成功采集；按 `references/ete-socrates-module.md` 核对精确基线和重载，别仅凭 funnel-ete 的名字判断。
 
 ## 3. SPE、BRBE、硬件断点和观察点
 
@@ -248,7 +253,7 @@ Stalker/QBDI/模拟
   → 符号执行
 ```
 
-ETE 是未来可以替换第一步的低扰动后端，不是必须依赖，也不是自动还原器。
+ETE 已在记录的 socrates 基线上成功产生 AUX 数据，可作为候选低扰动后端；完整解码到块/边仍需验证，不是必须依赖，也不是自动还原器。
 
 ## 7. VMP：trace 看到的是解释器，不是原始程序
 
@@ -296,6 +301,6 @@ Dex VMP 还要先判断方法体是否真的留在 Dex 中。若是 extraction s
 - trace 证明“某个输入、某个线程、某个窗口里执行过什么”，不能直接证明未出现的代码永远不可达。
 - ETE 不提供寄存器/内存语义的完整快照；VMP handler 语义仍需快照、差分或模拟。
 - 硬件断点/观察点不是无痕绕过；它们仍可能改变时序或暴露调试状态。
-- 本 skill 目前不编译、不发布、不加载研究内核；内核侧路线需要匹配的源码、配置、签名和恢复方案。
+- 通用研究内核开发仍不在覆盖范围；仅发布一份已实测、精确内核的 ETE source 模块与显式重载工具，见 `references/ete-socrates-module.md`，不自动刷写或配置开机加载。
 
 **完成标准：**把设备能力报告、采集命令、trace 文件哈希、解码器版本、ELF 文件哈希和地址映射一起保存。只写“手机支持 ETE”不构成可复现证据。

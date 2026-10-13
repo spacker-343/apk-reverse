@@ -75,6 +75,10 @@ file behind it.
 - **Kernel-module templates with their version gates**
   (`kernel-and-environment-hardening.md`, `scripts/kernelsu_syscall_mask.py`). The generator is
   measured; **no kernel-side artefact was compiled or loaded** — see the record below.
+- **Socrates ETE source recovery.** A standalone stock-ABI matched ETM4x module initialized all
+  eight ETE v1 sources in Enforcing and captured 2,166,016 bytes AUX; dump validated structure.
+  Binary, provenance, build configuration and redacted evidence ship in skill assets; full path
+  decoding and genuine APK tracing remain unverified (`ete-socrates-module.md`).
 
 ## Covered by documented routes — inferred rather than measured
 
@@ -90,7 +94,7 @@ its own strength note at the top.
   service-ification (`emulation-and-rpc.md`).
 - **Instruction-level tracing and de-obfuscation** — the OLLVM shapes, a Stalker trace, the
   trace-to-CFG route, and the measured boundaries in `native-dbi-and-deobfuscation.md`.
-- **PIE/`.so` runtime address mapping and ARM hardware capability probing** — the dependency-free `PT_LOAD` mapper and the read-only CoreSight/`cs-etm`/SPE/BRBE probe are documented, but end-to-end tombstone integration, ETE recording and trace decoding remain device-specific and unverified (`arm-tracing-elf-and-crash.md`, `scripts/elf_runtime.py`, `scripts/device_hw_probe.py`).
+- **PIE/`.so` runtime address mapping and ARM hardware capability probing** — the dependency-free `PT_LOAD` mapper and read-only CoreSight/SPE/BRBE probe are documented; tombstone integration and full ETE trace decoding remain unverified. One exact socrates kernel now has observed eight-source initialization, AUX capture and a bundled module with guarded reload (`ete-socrates-module.md`, `arm-tracing-elf-and-crash.md`, `scripts/ete_module.py`). Other kernels/targets are not established by this record.
 - **Protocol reversing beyond REST** — protobuf without a schema, gRPC frame capture, the QUIC/HTTP3
   limit, native-side certificate pinning (`protocol-reverse.md`).
 - **What to do when userspace hooking provably cannot reach the check** — raw `svc` syscalls,
@@ -130,9 +134,11 @@ its own strength note at the top.
   probe — and the boundary that keeps those from becoming an evasion project is stated in the same
   file (its Step 2B, two boundaries this file adopts): observers and interceptors stay separate
   modules, and the cost of each added module is what decides when to leave for static.
-- **Kernel development.** `kernel-and-environment-hardening.md` maps the kernel-side route and names
-  the version gate that decides whether it exists on your device; building and shipping a kernel
-  module is outside this skill.
+- **General kernel development.** `kernel-and-environment-hardening.md` maps kernel-side routes;
+  generic module development remains outside this skill. A narrow exception is the recorded
+  socrates ETE source module in `assets/ete/socrates-5.15.41/`, with original driver/build inputs,
+  observed load/AUX capture and explicit reload tooling (`ete-socrates-module.md`). It is not a
+  portable kernel replacement, automatic boot loader or a verified instruction-path decoder.
 - **A working Stalker trace on every device.** Two boundaries are measured and one of them is now
   better understood: exclusion keeps the target alive but does **not** restore event delivery
   (`references/evidence-summary.md` §The capability matrix). Treat the zero-event case as a boundary to

@@ -1,0 +1,21 @@
+{
+  "record_type": "live verification during this publication update",
+  "device": "socrates",
+  "kernel": "5.15.41-android13-8-00015-gde2a4c25826b-ab9439604",
+  "selinux": "Enforcing",
+  "ete_module_status_rc": 0,
+  "module_live": true,
+  "source_enable_before_smoke": [0, 0, 0, 0, 0, 0, 0, 0],
+  "smoke_command_shape": "simpleperf record -e cs-etm:u --aux-buffer-size 1048576 --no-dump-symbols --no-dump-kernel-symbols -o UNIQUE_REMOTE --duration 1 -- /system/bin/ls /system/bin",
+  "record_rc": 0,
+  "aux_bytes_reported": 1783840,
+  "record_file_bytes": 1825953,
+  "dump_rc": 0,
+  "auxtrace_structure": true,
+  "cleanup_rc": 0,
+  "cleanup_check": "ABSENT",
+  "full_instruction_path_decoding": "unverified",
+  "module_reloaded_by_update": false,
+  "device_rebooted_by_update": false,
+  "autoload_installed_by_update": false
+}

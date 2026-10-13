@@ -1,0 +1,19 @@
+{
+  "record_type": "original runtime record; boot UUID removed; no new run claimed",
+  "module_loaded": true,
+  "eight_ete_sources_initialized": true,
+  "selinux": "Enforcing",
+  "boot_id_unchanged": true,
+  "simpleperf_record_rc": 0,
+  "aux_bytes_traced": 2166016,
+  "record_bytes": 2433042,
+  "record_sha256": "a0dd42cb482a7351073845a01d6f05d23e569e795888e7b6f48bb6ecbc7ac67f",
+  "trace_dump_rc": 0,
+  "kernel_errors_after_load": [],
+  "device_module_path": "/data/local/tmp/coresight-etm4x.ko",
+  "load_parameters": {"boot_enable": 0, "pm_save_enable": 1},
+  "source_enable_after_record": [0, 0, 0, 0, 0, 0, 0, 0],
+  "device_smoke_record_removed": true,
+  "autoload_configured": false,
+  "runtime_trace_decoding_verified": false
+}

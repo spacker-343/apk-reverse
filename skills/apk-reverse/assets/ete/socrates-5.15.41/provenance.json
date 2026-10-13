@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-13 (original host clock, UTC+08:00)",
+  "source_archive": "ete-assets/socrates-5.15.41-2026-10-13",
+  "source_repository": "https://github.com/MiCode/Xiaomi_Kernel_OpenSource",
+  "source_branch": "socrates-t-oss",
+  "source_commit": "3586ae7c7ea9eae1eb786600ece31907786480a2",
+  "source_url": "https://codeload.github.com/MiCode/Xiaomi_Kernel_OpenSource/tar.gz/3586ae7c7ea9eae1eb786600ece31907786480a2",
+  "source_archive_sha256": "e5e22d5eb3439717e131ac5699f7555b8af6f9df87f44f881578cb4da168b590",
+  "clang": "Android 8508608 r450784e Clang/LLD 14.0.7",
+  "clang_url": "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/9f759dee5cdc5f85d076c642a192f6a9232f7058/clang-r450784e.tar.gz",
+  "clang_archive_sha256": "f4591323a901dfcc577fbf9ab80c60d1a260ebf85d22d36b9bb268e55db4618c",
+  "stock_image_sha256": "6f36bf32e6b243ec8cbbeb7b84b960e53645987ff2265359fd614a8b2eceb51a",
+  "stock_coresight_sha256": "a202894fb5379ddb1958886f369033f73e8e2e420bcdf8b30617fc959252da56",
+  "symvers_sha256": "dd8cc86119a8127bd64dc3c509956d547e1151e2c5587df8c6073a3b5380611c",
+  "upstream_driver_logic_modified": false,
+  "driver_license": "GPL-2.0",
+  "publication": "Selected runtime artifact, build configuration, driver sources and redacted evidence. Large upstream inputs and raw device records stay in the original archive."
+}
