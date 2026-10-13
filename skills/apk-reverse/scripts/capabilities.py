@@ -378,7 +378,7 @@ CAPABILITIES = {
         'name': 'ARM hardware-trace capability probe (CoreSight/ETM/SPE/BRBE hints)',
         'required': ['python39', 'tool:adb', 'device'],
         'optional': ['device_root'],
-        'scripts': ['device_hw_probe.py'],
+        'scripts': ['device_hw_probe.py', 'ete_module.py'],
         'note': 'the probe separates hardware hints, kernel exposure, recorder event names and '
                 'a bounded cs-etm smoke test; a visible node is not treated as a usable trace',
     },
@@ -426,7 +426,7 @@ CAPABILITIES = {
         'name': 'On-device static work (pull, list, read files)',
         'required': ['python39', 'tool:adb', 'device'],
         'optional': [],
-        'scripts': ['devsh.py', 'preflight.py'],
+        'scripts': ['devsh.py', 'preflight.py', 'device_shell.py'],
     },
     'device_root': {
         'name': 'On-device privileged work (root shell)',
@@ -1018,6 +1018,7 @@ SCRIPT_CAPABILITIES = {
     'repack.py': ['repack_unsigned', 'repack_signed'],
     'install_test.py': ['repack_signed', 'device_static'],
     'devsh.py': ['device_static'],
+    'device_shell.py': ['device_static'],
     'preflight.py': ['device_static'],
     'coldstart.py': ['device_static', 'device_root'],
     'snap.py': ['device_static', 'device_root'],
@@ -1047,9 +1048,11 @@ SCRIPT_CAPABILITIES = {
     'scan_leaks.py': ['publish_gate'],
     'mt_mcp_probe.py': ['device_static'],
     'device_hw_probe.py': ['device_hw_trace'],
+    'ete_module.py': ['device_hw_trace'],
     'tls_check.py': ['protocol_decode'],
     'probe_api.py': ['protocol_decode'],
     'sig_probe.py': ['frida_dynamic', 'static_dex'],
+    'rasc_build.py': ['dex_index_rust'],
 }
 
 # `doctor.py` and `capabilities.py` report on the environment rather than consume it.
@@ -1085,7 +1088,7 @@ def declared_capability(path):
     except SyntaxError:
         return None, 'unparsed: SyntaxError'
     doc = ast.get_docstring(tree) or ''
-    for line in doc.splitlines()[1:4]:
+    for line in doc.splitlines()[:1]:
         line = line.strip()
         if line.startswith('capability:'):
             ids = [x.strip() for x in line.split(':', 1)[1].split(',') if x.strip()]

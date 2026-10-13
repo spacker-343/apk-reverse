@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""capability: device_hw_probe
+"""capability: device_hw_trace
 Read-only ARM hardware-tracing capability probe for an Android device.
 
 This script deliberately reports four separate layers instead of saying

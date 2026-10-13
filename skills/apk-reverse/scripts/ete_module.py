@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""capability: device_hw_probe
+"""capability: device_hw_trace
 Verify or explicitly reload the bundled, exact-kernel socrates ETE source module.
 Default: read-only device status. --verify-only: host assets only. --load: device writes.
 No flashing, autoload configuration, SELinux changes, force-loading or tracing.
