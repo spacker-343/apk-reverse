@@ -57,6 +57,42 @@ python skills/apk-reverse/scripts/ete_record.py --serial SERIAL --tid 1234 --dur
 RAM boot 和持久部署后各三次 150ms/三次 30ms 全部非零 AUX 且有验证区间，是该实测配置的回归，不是所有负载或无缺口完整路径保证。
 初始化确认前可能已有少量追踪，因此请求时长是确认后的有界活动窗口，不代表文件只覆盖该精确时间范围。
 
+### 直接录制与严格丢失验收（受限可用路径，不是 CPU4 修复）
+
+`observed`：`ete_direct_record.py` 的 C recorder 以 disabled 创建事件，先映射 data/AUX，
+再启用；在设备上计时，最终只禁用一次。它消除 AUX 映射前启动和 host 控制延迟，
+不依赖 simpleperf 的周期 stop/restart。使用无地址过滤的用户态追踪，不改变目标 affinity。
+三个正式 CPU0/1ms/16MiB 样本分别有 497,568 / 492,912 / 530,176 AUX 字节，
+427,731 / 433,695 / 466,530 个区间；flags=0、源 overflow=0、仅索引 0 的初始化 reset，
+全部经过 maps/哈希 ELF/字节验证。三个此前实验短窗口也通过最终审计。
+**CPU4 仍有真实源端 overflow；CPU0 30ms 三次中一次有流内 reset，故没有稳定长窗口保证。**
+聚合证据：`assets/ete/socrates-5.15.41/evidence/overflow-controls.json`。
+
+Linux/WSL 需要 AArch64 cross GCC；只发布源码，编译产物和运行输出放 skill 外：
+
+```sh
+aarch64-linux-gnu-gcc -static -O2 -Wall -Wextra -Werror skills/apk-reverse/assets/ete/socrates-5.15.41/decode/ete_direct_record.c -o /tmp/ete-direct-record
+```
+
+```powershell
+python skills/apk-reverse/scripts/ete_direct_record.py --serial SERIAL --tid 1234 --recorder work/ete/ete-direct-record --duration 0.001 --aux-buffer-size 16777216 --out-dir work/ete/new-direct
+```
+
+要求线程**本来就只允许 CPU0**，时长 `(0,0.03]`，AUX 1–64MiB 的二次幂，八源空闲、root/Enforcing、
+精确设备/内核；不自动绑核、加载模块、限频或暂停用户线程。默认 1ms 仅是实测起点，每次仍需验收。
+保存 capture 前后 maps、所有普通文件可执行 ELF 哈希，以及只读 `/proc/TID/mem` vDSO 前后快照；
+动态/JIT/其他匿名可执行映射、被删除或 APK 内映射目前拒绝，不会默默省略。
+保存原始 events/AUX/attr/timing，再封装 perf；核对 AUX 原字节未改，保留原 flags。
+内存访问权限不足时停止，不放宽 SELinux；额外快照/录制有观测开销，非无扰动时间测量。
+
+该入口自动使用 `ete_decode.py --require-loss-clear`：逐 CPU 检查 AUX flags/lost records/连续 offset/完整载荷，
+检查 OpenCSD overflow、discard、地址不可达、bad packet、流内 reset、stderr、尾帧和全部区间映射。
+**只允许某个源尚无任何元素且 trace index=0 的初始化 reset；AUX 边界 reset 不豁免。**
+`RESULT=loss_markers_clear`/rc0 表示本次严格标记检查通过；`trace_has_gaps`/rc1 表示实际负结果；
+`unavailable`/rc2 是门禁、工具或清理失败。已知 CPU4 样本 AUX flags=0 但 overflow=7,329，严格入口返回 rc1。
+`loss_markers_clear` **仍不是**精确首尾、每条指令、跨 CPU 全序、寄存器/数据、完整路径或业务语义证明；
+`full_trace_verified` 始终 false。不能拼接多个短窗口冒充连续执行，也不能靠裁剪/降采样/迁核隐藏缺口。
+
 ## 安装独立资产与依赖
 
 安装 skill 自带 `scripts/ete_decode.py`、`scripts/ete_target_manifest.py`、`scripts/ete_addr_space.py`。它们转发到同一份 `assets/ete/socrates-5.15.41/decode/` backend，不依赖旧项目工作区或真实样本。backend 的 deframe/trace-ID 模块是诊断依赖；正式入口必须用有界 `ete_decode.py`，不要用底层自由改 ID 的 CLI 绕过未知布局拒绝。
@@ -98,7 +134,7 @@ ADB 不在 PATH 时加 `--adb path/to/adb.exe`。多个模块重复 `--module`�
 
 设备解码命令为 UUID 临时目录中的 `timeout N simpleperf --log error dump -i trace.perf --dump-etm element`，通过 `adb shell -T` 保存 stdout/stderr，主机也有超时，finally 清理远端目录。输出 `id-aligned.perf`、`elements.txt`、`decoder.stderr.txt`、`decode.json`；dump 可非常大，先检查磁盘空间，流式统计，不整体载入聊天上下文。
 
-5. **读报告而不是只看 rc。**rc 0=有 INSTR_RANGE；rc 1=无区间；rc 2=不可用或远端清理失败。rc 0 本身不保证地址验证通过，更不保证无缺口。逐项核对 `instruction_ranges`、`unique_ranges`、`mapped_range_occurrences`、`unique_ranges_in_requested_modules`、`module_errors_unique`、`a64_size_mismatches_unique`、`element_counts`、`no_sync_reasons`、stderr、source_unchanged 和 remote_cleanup。未请求的模块不算已验证；requested module 的区间必须完整位于采集时同一 maps row、可执行 PT_LOAD 的文件范围，并通过两式坐标、ELF 身份哈希和完整字节读取。
+5. **读报告而不是只看 rc。**默认 rc 0=有 INSTR_RANGE；rc 1=无区间/零 AUX；rc 2=不可用或远端清理失败。默认 rc0 不保证地址验证或无缺口。显式 `--require-loss-clear` 时，有任何丢失或验证未闭合返回 `trace_has_gaps`/rc1；同时核对 `loss_audit`、`loss_markers_clear`、`instruction_ranges`、`mapped_range_occurrences`、`a64_size_mismatches_unique`、`no_sync_reasons`、stderr、source_unchanged 和 remote_cleanup。未请求的模块不算已验证；requested module 的区间必须完整位于采集时同一 maps row、可执行 PT_LOAD 的文件范围，并通过两式坐标、ELF 身份哈希和完整字节读取。
 
 可用单地址诊断定位映射失败，不启用 `--allow-hash-mismatch` 冒充验证：
 
@@ -136,4 +172,4 @@ python skills/apk-reverse/scripts/ete_addr_space.py --manifest work/ete/manifest
 python -m unittest discover -s skills/apk-reverse/assets/ete/socrates-5.15.41/decode -p test_ete_decode.py -v
 ```
 
-29 项解码合成测试、10 项过滤规划及 6 项采集控制测试验证输入保护、未知布局拒绝、跨记录混合真实 ID 拒绝、真实同步/尾帧、A64/ELF 坐标、失败报告与清理；内核修复另有真实 C 函数回归。它们不替代新设备/新 APK 的实测能力关卡。固定 `.ko`/GPL 来源继续见模块文档。
+30 项解码合成测试、10 项过滤规划、6 项采集控制、12 项丢失检查和 7 项直接入口门禁/清理测试验证输入保护、未知布局拒绝、真实同步/尾帧、A64/ELF 坐标、严格负结果与清理；内核修复另有真实 C 函数回归。它们不替代新设备/新 APK 的实测能力关卡。固定 `.ko`/GPL 来源继续见模块文档。

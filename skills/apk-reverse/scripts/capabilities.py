@@ -1054,6 +1054,7 @@ SCRIPT_CAPABILITIES = {
     'ete_module.py': ['device_hw_trace'],
     'ete_decode.py': ['device_hw_trace'],
     'ete_record.py': ['device_hw_trace'],
+    'ete_direct_record.py': ['device_hw_trace'],
     'tls_check.py': ['protocol_decode'],
     'probe_api.py': ['protocol_decode'],
     'sig_probe.py': ['frida_dynamic', 'static_dex'],

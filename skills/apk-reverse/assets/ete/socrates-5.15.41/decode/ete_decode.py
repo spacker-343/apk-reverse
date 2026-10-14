@@ -19,6 +19,7 @@ import uuid
 
 import ete_addr_space as A
 import ete_patch_traceid as P
+from ete_loss import audit_elements, perf_loss
 
 KIND = re.compile(r"^Idx:(\d+); ID:([0-9a-fA-F]+); (OCSD_GEN_TRC_ELEM_[A-Z_]+)")
 RANGE = re.compile(r"exec range=(0x[0-9a-f]+):\[(0x[0-9a-f]+)\] num_i\((\d+)\)")
@@ -252,6 +253,15 @@ def decode(args):
             run_adb(args.adb, args.serial, ["shell", "-T", command], args.timeout + 15,
                     stdout=stdout, stderr=stderr)
         report.update(summarise(dump, resolvers))
+        report["loss_audit"] = {"perf": perf_loss(source), "elements": audit_elements(dump, KIND)}
+        report["loss_markers_clear"] = (
+            report["loss_audit"]["perf"]["perf_loss_markers_clear"]
+            and report["loss_audit"]["elements"]["element_loss_markers_clear"]
+            and not report["malformed_range_lines"] and not report["a64_size_mismatches_unique"]
+            and report["address_validation_requested"]
+            and sum(report["mapped_range_occurrences"].values()) == report["instruction_ranges"]
+            and errors.stat().st_size == 0
+            and report["protocol_scan"]["unprocessed_tail_bytes"] == 0)
         report["dump_sha256"] = sha256(dump)
         report["dump_bytes"] = dump.stat().st_size
         report["stderr_bytes"] = errors.stat().st_size
@@ -259,6 +269,8 @@ def decode(args):
         if not report["source_unchanged"]:
             raise ValueError("original trace changed")
         report["status"] = "decoded_ranges" if report["instruction_ranges"] else "no_instruction_ranges"
+        if getattr(args, "require_loss_clear", False) and not report["loss_markers_clear"]:
+            report["status"] = "trace_has_gaps"
     except NoAuxData as exc:
         report.update(status="no_aux_data", error=str(exc), aux_bytes=0,
                       instruction_ranges=0, full_trace_verified=False,
@@ -271,6 +283,7 @@ def decode(args):
                 report["source_unchanged"] = report["source_sha256"] == sha256(source)
                 if not report["source_unchanged"]:
                     report["status"], report["error"] = "unavailable", "original trace changed"
+                    report["loss_markers_clear"] = False
             except OSError as exc:
                 report["source_unchanged"] = False
                 report["status"], report["error"] = "unavailable", str(exc)
@@ -282,13 +295,16 @@ def decode(args):
                 report["remote_cleanup"] = True
             except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
                 report["remote_cleanup"], report["cleanup_error"] = False, str(exc)
+                report["status"] = "unavailable"
+                report["loss_markers_clear"] = False
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf8")
     print("REPORT=" + str(report_path))
     print("INSTR_RANGES=" + str(report.get("instruction_ranges", 0)))
     print("RESULT=" + report["status"])
     if report.get("remote_cleanup") is False:
         return 2
-    return 0 if report["status"] == "decoded_ranges" else 1 if report["status"] in ("no_instruction_ranges", "no_aux_data") else 2
+    return {"decoded_ranges": 0, "no_instruction_ranges": 1, "no_aux_data": 1,
+            "trace_has_gaps": 1}.get(report["status"], 2)
 
 
 def main():
@@ -302,6 +318,8 @@ def main():
     ap.add_argument("--manifest")
     ap.add_argument("--elf-dir")
     ap.add_argument("--module", action="append", default=[])
+    ap.add_argument("--require-loss-clear", action="store_true",
+                    help="fail if any AUX/protocol/address gap remains; not a full-path proof")
     args = ap.parse_args()
     if not 1 <= args.timeout <= 300:
         ap.error("timeout must be 1..300 seconds")

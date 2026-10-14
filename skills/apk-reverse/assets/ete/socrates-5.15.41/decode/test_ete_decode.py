@@ -236,7 +236,7 @@ class TestDecode(unittest.TestCase):
         return SimpleNamespace(out_dir=self.root / 'out', trace=self.src, serial='fake', adb='fake-adb', timeout=1,
                                module=[], maps=None, manifest=None, elf_dir=None)
 
-    def run_fake(self, stage=None, output=None):
+    def run_fake(self, stage=None, output=None, strict=False):
         calls = []
         def fake(adb, serial, args, timeout, **kwargs):
             calls.append(args)
@@ -250,7 +250,9 @@ class TestDecode(unittest.TestCase):
                 raise RuntimeError('cleanup failed')
             return SimpleNamespace(stdout=b'uid=0 5.15.41-android13-8-00015-gde2a4c25826b-ab9439604 Enforcing', stderr=b'')
         with patch.object(D, 'run_adb', side_effect=fake), contextlib.redirect_stdout(io.StringIO()):
-            rc = D.decode(self.args())
+            args = self.args()
+            args.require_loss_clear = strict
+            rc = D.decode(args)
         report = json.loads((self.root / 'out' / 'decode.json').read_text(encoding='utf8'))
         return rc, report, calls
 
@@ -282,6 +284,14 @@ class TestDecode(unittest.TestCase):
         rc, report, _ = self.run_fake(stage='cleanup')
         self.assertEqual(2, rc)
         self.assertFalse(report['remote_cleanup'])
+        self.assertEqual('unavailable', report['status'])
+        self.assertFalse(report['loss_markers_clear'])
+
+    def test_strict_gaps_return_one(self):
+        rc, report, _ = self.run_fake(strict=True)
+        self.assertEqual(1, rc)
+        self.assertEqual('trace_has_gaps', report['status'])
+        self.assertFalse(report['loss_markers_clear'])
 
     def test_decode_invalid_trace_report_not_traceback(self):
         self.src.write_bytes(b'PERFILE2')

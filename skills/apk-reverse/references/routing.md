@@ -71,6 +71,7 @@ reference file is not named here, or when a script is not named here.
 | The socrates ETE sources disappear after reboot, or you need the verified source driver to reload | `references/ete-socrates-module.md` — bundled `.ko`, exact-kernel/hash gates, explicit reload and capture evidence |
 | ETE AUX is captured but decoding is silent/NO_SYNC, or a new APK needs verified native instruction ranges | `references/ete-decoding.md` — installed decoder, capture-time maps/ELF validation and reset/overflow limits; not a complete execution path |
 | Socrates file-filter boundaries produce zero ranges, or short recordings contain zero AUX | `references/ete-decoding.md` — separate built-in perf VMA matching from recorder startup/shutdown; repaired boundary controls and bounded `ete_record.py`, not syncfreq guesses |
+| ETE decodes ranges but has overflow, AUX loss or interior reset | `references/ete-decoding.md` — strict loss rejection and bounded direct CPU0 controls; unresolved CPU4 source overflow, no filtering-away of gaps |
 | The traffic is protobuf/gRPC/QUIC, or a proxy sees TLS but requests still fail on a Flutter app | `references/protocol-reverse.md` — schema-less protobuf, frame capture, and native-side pinning |
 | Userspace hooks land and the app still dies: the check reads `/proc/self/status` through a raw `svc`, or runs before `JNI_OnLoad` | `references/kernel-and-environment-hardening.md` — what the next layer up and down can actually do, and when to stop |
 | You must edit, repack, sign or inspect the APK **from the phone itself** | `references/on-device-tooling.md`, `scripts/mt_mcp_probe.py` |
@@ -174,6 +175,7 @@ _44 row(s) below the header._
 | `scripts/ete_decode.py` | Decode only an ID-aligned copy with device OpenCSD; bounded timeouts and cleanup, stream statistics and requested-module ELF validation; never a full-path claim |
 | `scripts/ete_addr_filter.py` | Read-only fallback for the stock perf VMA endpoint bug; verify hashed ELF/maps, emit explicit ranges and disclose cropped words; kernel source repair lives in the ETE build assets |
 | `scripts/ete_record.py` | Bounded socrates cs-etm capture for an existing TID; await initial pause/resume and final pause/disable acknowledgements, then require nonzero AUX; no autoload or full-path claim |
+| `scripts/ete_direct_record.py` | Direct CPU0 existing-TID capture, mmap-before-enable and on-device bounded timing; preserve raw AUX/events/ELF and reject loss markers; explicit recorder build required, no target affinity changes or universal lossless claim |
 | `scripts/ete_target_manifest.py` | Record exact APK/ELF identity, SHA-256 and PT_LOAD for this capture; read-only inputs |
 | `scripts/ete_addr_space.py` | Cross-check runtime addresses against capture-time maps and hashed ELF file coordinates; unclosed mappings are not guessed |
 | `scripts/elf_plt.py` | Resolve a PLT stub to its imported symbol (x86_64 + aarch64) from the **relocation table**, list a symbol's callers, and **byte-diff two libraries naming the symbol each changed stub belongs to**. Run before patching any stub |

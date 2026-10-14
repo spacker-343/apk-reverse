@@ -61,6 +61,13 @@ python skills/apk-reverse/scripts/device_hw_probe.py --expect-root --smoke-test 
 现有 `.ko` 不含 perf 核心，字节未改；仍需每次重启后显式加载，没有安装 Magisk 开机加载模块。
 `ete_addr_filter.py` 仅是未修内核的裁剪 fallback；`ete_record.py` 修正启动/退出顺序，短窗口回归取得真实解码区间，仍有 overflow。
 
+`decode/ete_direct_record.c` 与 `scripts/ete_direct_record.py` 提供 disabled→mmap→enable→单次最终 disable 的
+CPU0 直接用户态录制。三个正式 1ms/16MiB 样本通过严格 AUX/源端/流内/ELF 检查，
+见 `evidence/overflow-controls.json` 与 `references/ete-decoding.md` 的构建/运行说明。
+入口只接受已经绑在 CPU0 的线程，不自动迁核/限频/加载模块；每次必须严格验收。
+CPU4 overflow 仍未修复，CPU0 30ms 有一个流内 reset 反例；`loss_markers_clear` 不是完整执行路径证明。
+只发布源码，不附新 recorder 二进制或原始 trace/maps/ELF。
+
 ## 构建材料与不上传的内容
 
 保留官方三个驱动 C 文件、外部 Makefile、最终配置差异与 stock `Module.symvers`。
@@ -70,7 +77,7 @@ python skills/apk-reverse/scripts/device_hw_probe.py --expect-root --smoke-test 
 
 ## 解码资产
 
-- `decode/`：设备 OpenCSD harness、deframe/trace-ID/ELF 坐标依赖、独立 fixture、29 项解码、10 项过滤规划及 6 项采集控制测试。
+- `decode/`：设备 OpenCSD harness、deframe/trace-ID/ELF 坐标依赖、独立 fixture、30 项解码、10 项过滤、6 项采集控制、12 项丢失检查和 7 项直接入口测试。
 - `evidence/decode-result.json`：脱敏聚合历史测量；不携带真实目标 APK/ELF/maps/perf 或完整 dump。
 - `evidence/decode-publication.json`：历史解码发布范围与输入保护快照，和 `decode-result.json` 中当时的限制文案均保留；当前修复状态见 `perf-filter-deployment.json`，不倒改旧记录。
 - skill 的解码、manifest、地址映射、过滤规划与有界采集入口转发到同一 backend，安装后无需原项目。

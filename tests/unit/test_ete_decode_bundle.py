@@ -29,12 +29,12 @@ def install(tmp_path):
     shutil.copytree(ASSETS, dest / "assets" / "ete" / "socrates-5.15.41",
                     ignore=shutil.ignore_patterns("__pycache__"))
     (dest / "scripts").mkdir()
-    for name in ("ete_decode.py", "ete_target_manifest.py", "ete_addr_space.py", "ete_addr_filter.py", "ete_record.py"):
+    for name in ("ete_decode.py", "ete_target_manifest.py", "ete_addr_space.py", "ete_addr_filter.py", "ete_record.py", "ete_direct_record.py"):
         shutil.copy2(SKILL / "scripts" / name, dest / "scripts" / name)
     return dest
 
 
-@pytest.mark.parametrize("name", ["ete_decode.py", "ete_target_manifest.py", "ete_addr_space.py", "ete_addr_filter.py", "ete_record.py"])
+@pytest.mark.parametrize("name", ["ete_decode.py", "ete_target_manifest.py", "ete_addr_space.py", "ete_addr_filter.py", "ete_record.py", "ete_direct_record.py"])
 def test_installed_cli_help(tmp_path, name):
     dest = install(tmp_path)
     result = run(["-I", dest / "scripts" / name, "--help"], tmp_path)
@@ -45,13 +45,19 @@ def test_installed_offline_regressions(tmp_path):
     dest = install(tmp_path)
     backend = dest / "assets" / "ete" / "socrates-5.15.41" / "decode"
     result = run(["-I", "-m", "unittest", "discover", "-s", backend, "-p", "test_ete_decode.py", "-v"], tmp_path)
-    assert "Ran 29 tests" in result.stderr
+    assert "Ran 30 tests" in result.stderr
     assert "OK" in result.stderr
     result = run(["-I", "-m", "unittest", "discover", "-s", backend, "-p", "test_ete_addr_filter.py", "-v"], tmp_path)
     assert "Ran 10 tests" in result.stderr
     assert "OK" in result.stderr
     result = run(["-I", "-m", "unittest", "discover", "-s", backend, "-p", "test_ete_record.py", "-v"], tmp_path)
     assert "Ran 6 tests" in result.stderr
+    assert "OK" in result.stderr
+    result = run(["-I", "-m", "unittest", "discover", "-s", backend, "-p", "test_ete_loss.py", "-v"], tmp_path)
+    assert "Ran 12 tests" in result.stderr
+    assert "OK" in result.stderr
+    result = run(["-I", "-m", "unittest", "discover", "-s", backend, "-p", "test_ete_direct_record.py", "-v"], tmp_path)
+    assert "Ran 7 tests" in result.stderr
     assert "OK" in result.stderr
 
 
@@ -138,3 +144,18 @@ def test_asset_inventory_complete_and_identity_preserved():
     assert entries["module/coresight-etm4x.ko"] == "285f8be46dbba1003d5b2d1c0bfb32c7d4dcbc81397145c428adf4ded1960fb4"
     old = json.loads((ASSETS / "manifest.json").read_text(encoding="utf8"))
     assert not old["instruction_path_decoding_verified"]
+
+
+def test_overflow_controls_keep_failed_windows_and_narrow_scope():
+    evidence = json.loads((ASSETS / "evidence" / "overflow-controls.json").read_text(encoding="utf8"))
+    groups = {row["kind"]: row["captures"] for row in evidence["groups"]}
+    official = groups["official_cpu0_1ms"]
+    assert [r["aux_bytes"] for r in official] == [497568, 492912, 530176]
+    assert [r["instruction_ranges"] for r in official] == [427731, 433695, 466530]
+    assert all(r["loss_markers_clear"] and not r["full_trace_verified"] for r in official)
+    assert [r["loss_markers_clear"] for r in groups["experimental_cpu0_30ms"]] == [True, True, False]
+    assert [r["source_overflow"] for r in evidence["cpu4_sink_pair"]] == [6939, 7032]
+    assert all(not r["loss_markers_clear"] for r in evidence["cpu4_sink_pair"])
+    assert evidence["known_lossy_strict_decode"]["exit_code"] == 1
+    assert not evidence["raw_inputs_published"]
+    assert any("CPU4 source overflow remains unresolved" in line for line in evidence["limits"])

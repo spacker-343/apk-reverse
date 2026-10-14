@@ -1,0 +1,326 @@
+{
+  "schema": "ete-overflow-controls/1",
+  "strength": "observed",
+  "device_class": "socrates / SM8550",
+  "route": "disabled event -> data/AUX mmap -> enable -> device timer -> single final disable",
+  "official_defaults": {
+    "cpu": 0,
+    "duration_seconds": 0.001,
+    "aux_buffer_bytes": 16777216,
+    "requires_existing_cpu0_affinity": true,
+    "unfiltered_user_mode": true
+  },
+  "groups": [
+    {
+      "kind": "experimental_cpu0_1ms",
+      "captures": [
+        {
+          "cpu": 0,
+          "requested_seconds": 0.001,
+          "aux_bytes": 503072,
+          "window_seconds": 0.001087084,
+          "disable_ack_seconds": 0.001488698,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 0,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1
+          },
+          "instruction_ranges": 438219,
+          "unique_ranges": 350,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": true,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        },
+        {
+          "cpu": 0,
+          "requested_seconds": 0.001,
+          "aux_bytes": 610784,
+          "window_seconds": 0.001239114,
+          "disable_ack_seconds": 0.001691146,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 0,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1
+          },
+          "instruction_ranges": 541065,
+          "unique_ranges": 355,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": true,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        },
+        {
+          "cpu": 0,
+          "requested_seconds": 0.001,
+          "aux_bytes": 438000,
+          "window_seconds": 0.001083125,
+          "disable_ack_seconds": 0.001437031,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 0,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1
+          },
+          "instruction_ranges": 385289,
+          "unique_ranges": 356,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": true,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        }
+      ]
+    },
+    {
+      "kind": "experimental_cpu0_30ms",
+      "captures": [
+        {
+          "cpu": 0,
+          "requested_seconds": 0.03,
+          "aux_bytes": 13780880,
+          "window_seconds": 0.030092083,
+          "disable_ack_seconds": 0.033631094,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 0,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1
+          },
+          "instruction_ranges": 12046348,
+          "unique_ranges": 377,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": true,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        },
+        {
+          "cpu": 0,
+          "requested_seconds": 0.03,
+          "aux_bytes": 13259024,
+          "window_seconds": 0.030111771,
+          "disable_ack_seconds": 0.034197709,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 0,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1
+          },
+          "instruction_ranges": 11668423,
+          "unique_ranges": 373,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": true,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        },
+        {
+          "cpu": 0,
+          "requested_seconds": 0.03,
+          "aux_bytes": 11990576,
+          "window_seconds": 0.030330052,
+          "disable_ack_seconds": 0.031503281,
+          "aux_flags": [
+            0,
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 1,
+          "no_sync_reasons": {
+            " [reset-decoder]": 2
+          },
+          "instruction_ranges": 10552412,
+          "unique_ranges": 374,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": false,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        }
+      ]
+    },
+    {
+      "kind": "cpu4_filtered_unfiltered_1ms",
+      "captures": [
+        {
+          "cpu": 4,
+          "requested_seconds": 0.001,
+          "aux_bytes": 1390256,
+          "window_seconds": 0.001092448,
+          "disable_ack_seconds": 0.001535261,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 3518,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1,
+            " [overflow]": 3518
+          },
+          "instruction_ranges": 662931,
+          "unique_ranges": 213,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": false,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        },
+        {
+          "cpu": 4,
+          "requested_seconds": 0.001,
+          "aux_bytes": 1461008,
+          "window_seconds": 0.001092344,
+          "disable_ack_seconds": 0.001617917,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 7329,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1,
+            " [overflow]": 7329
+          },
+          "instruction_ranges": 1011104,
+          "unique_ranges": 356,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": false,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        }
+      ]
+    },
+    {
+      "kind": "official_cpu0_1ms",
+      "captures": [
+        {
+          "cpu": 0,
+          "requested_seconds": 0.001,
+          "aux_bytes": 497568,
+          "window_seconds": 0.001080573,
+          "disable_ack_seconds": 0.001518229,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 0,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1
+          },
+          "instruction_ranges": 427731,
+          "unique_ranges": 349,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": true,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        },
+        {
+          "cpu": 0,
+          "requested_seconds": 0.001,
+          "aux_bytes": 492912,
+          "window_seconds": 0.00109625,
+          "disable_ack_seconds": 0.001497343,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 0,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1
+          },
+          "instruction_ranges": 433695,
+          "unique_ranges": 353,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": true,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        },
+        {
+          "cpu": 0,
+          "requested_seconds": 0.001,
+          "aux_bytes": 530176,
+          "window_seconds": 0.001147604,
+          "disable_ack_seconds": 0.001551041,
+          "aux_flags": [
+            0
+          ],
+          "perf_loss_markers_clear": true,
+          "initial_resets": 1,
+          "interior_gap_count": 0,
+          "no_sync_reasons": {
+            " [reset-decoder]": 1
+          },
+          "instruction_ranges": 466530,
+          "unique_ranges": 350,
+          "all_ranges_mapped": true,
+          "a64_mismatches": 0,
+          "loss_markers_clear": true,
+          "source_unchanged": true,
+          "full_trace_verified": false
+        }
+      ]
+    }
+  ],
+  "cpu4_sink_pair": [
+    {"sink": "ETR", "requested_seconds": 0.001, "aux_capacity": 16777216,
+     "aux_bytes": 1396512, "aux_flags": [0], "source_overflow": 6939,
+     "instruction_ranges": 968566, "all_ranges_mapped": true, "loss_markers_clear": false},
+    {"sink": "ETR1", "requested_seconds": 0.001, "aux_capacity": 16777216,
+     "aux_bytes": 1402336, "aux_flags": [0], "source_overflow": 7032,
+     "instruction_ranges": 968422, "all_ranges_mapped": true, "loss_markers_clear": false}
+  ],
+  "known_lossy_strict_decode": {
+    "cpu": 4,
+    "source_overflow": 7329,
+    "aux_flags": [
+      0
+    ],
+    "status": "trace_has_gaps",
+    "exit_code": 1,
+    "source_unchanged": true
+  },
+  "unchanged": [
+    "persistent repaired kernel",
+    "original ETE source module",
+    "SELinux Enforcing",
+    "target affinity",
+    "CPU frequency limits"
+  ],
+  "limits": [
+    "CPU4 source overflow remains unresolved; this is not a universal overflow repair.",
+    "One CPU0 30ms sample has an interior reset and fails acceptance.",
+    "Switching ETR to ETR1 did not eliminate CPU4 source overflow in the same-pipeline control.",
+    "Actual QDSS/ATB clock rate and backpressure remain unmeasured; no CPU4 TRBE route is validated.",
+    "Only reset at trace index zero before any element of that source is initialization.",
+    "Marker clearance does not prove exact start/end coverage, every instruction, cross-CPU order, register/data values, timing or business semantics.",
+    "Original data is preserved; no cropping, downsampling or automatic migration."
+  ],
+  "raw_inputs_published": false
+}

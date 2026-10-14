@@ -13,6 +13,7 @@ import time
 import uuid
 
 from ete_deframe import walk_aux_payloads
+from ete_loss import perf_loss
 
 
 def read_lines(pipe, lines, messages):
@@ -142,6 +143,7 @@ def record(args):
         payloads = walk_aux_payloads(trace)
         report["aux_bytes"] = sum(len(row[0]) for row in payloads)
         report["aux_records"] = len(payloads)
+        report["loss_audit"] = perf_loss(trace)
         report["status"] = "captured" if report["aux_bytes"] else "no_aux_data"
     except (OSError, ValueError, RuntimeError, TimeoutError, subprocess.SubprocessError) as exc:
         report["error"] = str(exc)
