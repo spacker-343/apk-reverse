@@ -95,6 +95,77 @@ class TestDecode(unittest.TestCase):
             with self.assertRaises(ValueError):
                 D.prepare_trace(self.src, self.dst)
 
+    def test_no_aux_records_are_not_an_id_layout_failure(self):
+        _, body = D.P.find_info_record(self.src.read_bytes())
+        self.src.write_bytes(T.perf_build([T.perf_record(70, body)]))
+        original = self.src.read_bytes()
+        with self.assertRaisesRegex(D.NoAuxData, 'zero AUX bytes'):
+            D.prepare_trace(self.src, self.dst)
+        self.assertFalse(self.dst.exists())
+        self.assertEqual(original, self.src.read_bytes())
+        rc, report, calls = self.run_fake()
+        self.assertEqual(1, rc)
+        self.assertEqual('no_aux_data', report['status'])
+        self.assertEqual(0, report['aux_bytes'])
+        self.assertEqual(0, report['instruction_ranges'])
+        self.assertEqual([], calls)
+        self.assertTrue(report['source_unchanged'])
+        self.assertTrue(report['remote_cleanup'])
+        self.assertFalse(report['remote_created'])
+
+    def test_padding_does_not_win_small_stream_id(self):
+        frame = bytes([11]) + b'\0' * 11 + b'\x80\0\0\0'
+        padding = bytes([1]) + b'\0' * 15
+        payload = frame + padding * 20
+        _, body = D.P.find_info_record(self.src.read_bytes())
+        self.src.write_bytes(T.perf_build([T.perf_record(70, body),
+                             T.perf_auxtrace(len(payload), 0, 4, 42, fill=payload)]))
+        self.assertEqual({4: 5}, D.P.in_stream_ids(self.src))
+        D.prepare_trace(self.src, self.dst)
+
+    def test_minority_unknown_genuine_id_refused(self):
+        known = bytes([11]) + b'\0' * 15
+        unknown = bytes([85]) + b'\0' * 15
+        _, body = D.P.find_info_record(self.src.read_bytes())
+        payload = known * 20 + unknown
+        self.src.write_bytes(T.perf_build([T.perf_record(70, body),
+                             T.perf_auxtrace(len(payload), 0, 4, 42, fill=payload)]))
+        with self.assertRaises(ValueError):
+            D.prepare_trace(self.src, self.dst)
+        self.assertFalse(self.dst.exists())
+
+    def test_source_id_checked_across_records(self):
+        known = bytes([11]) + b'\0' * 15
+        padding = bytes([1]) + b'\0' * 15
+        _, body = D.P.find_info_record(self.src.read_bytes())
+        self.src.write_bytes(T.perf_build([T.perf_record(70, body),
+                             T.perf_auxtrace(16, 0, 4, 42, fill=known),
+                             T.perf_auxtrace(320, 16, 4, 42, fill=padding)]))
+        self.assertEqual({4: 5}, D.P.in_stream_ids(self.src))
+
+    def test_mixed_genuine_ids_across_records_refused(self):
+        known = bytes([11]) + b'\0' * 15
+        unknown = bytes([85]) + b'\0' * 15
+        _, body = D.P.find_info_record(self.src.read_bytes())
+        for frames in ((known, unknown), (unknown, known)):
+            with self.subTest(first_id=frames[0][0] >> 1):
+                self.src.write_bytes(T.perf_build([T.perf_record(70, body),
+                                     T.perf_auxtrace(16, 0, 4, 42, fill=frames[0]),
+                                     T.perf_auxtrace(16, 16, 4, 42, fill=frames[1])]))
+                original = self.src.read_bytes()
+                with self.assertRaises(ValueError):
+                    D.prepare_trace(self.src, self.dst)
+                self.assertFalse(self.dst.exists())
+                self.assertEqual(original, self.src.read_bytes())
+
+    def test_reserved_only_stream_not_accepted(self):
+        _, body = D.P.find_info_record(self.src.read_bytes())
+        self.src.write_bytes(T.perf_build([T.perf_record(70, body),
+                             T.perf_auxtrace(16, 0, 4, 42, fill=bytes([1]) + b'\0' * 15)]))
+        self.assertEqual({}, D.P.in_stream_ids(self.src))
+        with self.assertRaises(ValueError):
+            D.prepare_trace(self.src, self.dst)
+
     def test_async_real_criterion_and_zero_padding(self):
         stream = b'\x0f\0\0\0\xf8' + b'\0' * 50 + D.ASYNC * 2
         result = D.async_scan(stream)

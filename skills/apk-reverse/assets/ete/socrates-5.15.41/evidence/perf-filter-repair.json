@@ -1,0 +1,138 @@
+{
+  "schema": "socrates-perf-filter-repair/1",
+  "status": "source_fixed_full_image_built_static_exports_verified_not_deployed",
+  "claim_strength": "observed_source_and_controls_runtime_causality_inferred",
+  "runtime_kernel_repair_verified": false,
+  "full_trace_verified": false,
+  "original_module_sha256": "285f8be46dbba1003d5b2d1c0bfb32c7d4dcbc81397145c428adf4ded1960fb4",
+  "module_unchanged": true,
+  "source": {
+    "owning_layer": "built-in kernel/events/core.c, not the ETE source module",
+    "micode_commit": "3586ae7c7ea9eae1eb786600ece31907786480a2",
+    "stock_ack_commit": "de2a4c25826bde1ec685714694511e6aeff35017",
+    "stock_ack_url": "https://android.googlesource.com/kernel/common/+/de2a4c25826bde1ec685714694511e6aeff35017/kernel/events/core.c",
+    "micode_and_ack_core_byte_identical": true,
+    "original_core_sha256": "19999bbbf7b9b651e84d33a044c292527c775d38a3659b8b888afeef80ab17b9",
+    "original_match_function_sha256": "d81fc7748429af1789ac0ebb676823a0b2b82b2635a8593c3653c4f9bca10ca6",
+    "fixed_core_sha256": "d71b09caddec8faf151e35ec3520e1cec18329e23be8dbe82f1baf6591ef448a",
+    "stock_ack_archive_sha256": "210109169e321c3009fe9ead20f5dc9bba588fcbeb7e0be67fe8480b76f7380f",
+    "stock_ack_archive_bytes": 203893459,
+    "same_endpoint_test_observed_in": ["linux-5.15.y", "v6.6", "master"],
+    "dynamic_upstream_branches_not_fixed_reproduction_inputs": true
+  },
+  "stock_identity": {
+    "kernel_release": "5.15.41-android13-8-00015-gde2a4c25826b-ab9439604",
+    "active_boot_kernel_matches_stock_image": true,
+    "stock_image_sha256": "6f36bf32e6b243ec8cbbeb7b84b960e53645987ff2265359fd614a8b2eceb51a",
+    "current_config_matches_original_device_config": true,
+    "this_investigation_replaced_stock_kernel": false,
+    "selinux": "Enforcing"
+  },
+  "bug": {
+    "function": "perf_addr_filter_match",
+    "original_test": "strict >/< end comparisons admit endpoint-only overlap",
+    "effect": "perf_addr_filter_vma_adjust creates zero-length range on prior VMA; perf_addr_filter_apply returns at that first match",
+    "fix": "true half-open overlap for nonempty intervals; zero-size start/stop points match VMA start/interior but not exclusive end; difference comparisons avoid end-addition overflow",
+    "vma_conversion_driver_and_locking_unchanged": true,
+    "historical_trace_all_causes_closed": false
+  },
+  "controls": {
+    "workload": "self-created bounded shell loop; cs-etm:u, CPU4, same live process, 0.15 second windows",
+    "boundary": {
+      "filter": "filter 0xb000-0x4a684@/system/bin/sh",
+      "comparator_size": 0,
+      "aux_bytes": 832,
+      "instruction_ranges": 0
+    },
+    "interior": {
+      "filter": "filter 0xb004-0x4a684@/system/bin/sh",
+      "source_sha256": "7ae136e36951be5c0bf153ccbc0c7ae52ec623199c03496e7512d4d3f201b5ae",
+      "instruction_ranges": 1001990,
+      "unique_ranges": 215,
+      "mapped_range_occurrences": 1001990,
+      "mapped_module": "/system/bin/sh",
+      "elf_sha256": "5d20d8207fe1fefc7e41da012b0a57bd83466ab94056273258a0d59c50f6e6d0",
+      "a64_size_mismatches_unique": 0,
+      "no_sync_reasons": {"reset": 2, "overflow": 5304},
+      "source_unchanged": true,
+      "remote_cleanup": true,
+      "full_trace_verified": false
+    },
+    "historical_small_trace": {
+      "sha256": "44d1087099b20b6a7c09f7c2c9aae7d959e54772346ff477cb8bf97e1dccef4e",
+      "instruction_ranges": 0,
+      "reproduced_harness_rc": 1,
+      "preserved_not_recovered": true
+    }
+  },
+  "host_c_regression": {
+    "status": "passed",
+    "execution": "LP64 Linux host, not kernel execution",
+    "actual_original_and_fixed_c_functions_compiled": true,
+    "original_vma_conversion_used": true,
+    "named_cases": 12,
+    "random_checks": 50000,
+    "seed": 8550,
+    "file_identity_rejections": 2,
+    "boundary_original": {"vma_index": 0, "start": "0x10b000", "size": 0},
+    "boundary_fixed": {"vma_index": 1, "start": "0x200000", "size": "0x3f684"},
+    "interior_unchanged": true,
+    "zero_size_start_stop_point_checks_passed": true
+  },
+  "kbuild": {
+    "status": "full_image_built",
+    "source": "complete exact ACK archive, independent scratch copy",
+    "compiler": "Android 8508608 r450784e Clang 14.0.7",
+    "target": "AArch64 Image; kernel/events/core.o also independently compiled",
+    "full_lto_cfi_pac_bti_and_symbol_trimming_retained": true,
+    "object_format": "LLVM IR bitcode; not independently loadable",
+    "object_bytes": 1722772,
+    "object_sha256": "9d13b88bfcad998e0669f21b14f65877d7173fd17c6f0a43a41b6be43c8079c5",
+    "stock_config_differences": [
+      "CONFIG_UNUSED_KSYMS_WHITELIST relocated to scratch; generated from exact ACK public GKI build.config lists",
+      "CONFIG_CC_CAN_LINK and CONFIG_CC_CAN_LINK_STATIC changed from y to n by host capability detection",
+      "CONFIG_UAPI_HEADER_TEST changed from y to n by host capability detection"
+    ],
+    "whitelist_symbols": 7039,
+    "whitelist_lf_sha256": "b7de2c436ca0546d702dcef9c615d2f43464a9707fcf70654b19dcff8e21a383",
+    "exact_historical_generated_whitelist_identity_verified": false,
+    "host_crlf_whitelist_error_corrected_with_original_generator": true,
+    "host_cpio_dependency_recovered": "GNU cpio 2.15; kheaders archive and object generated",
+    "public_whitelist_stock_export_name_coverage": {"stock_exports": 7029, "missing": 0, "extra_zs_symbols": 10},
+    "host_casefold_archive_collision_groups": 13,
+    "host_casefold_recovered_files_verified_against_archive": 26,
+    "case_sensitive_source_and_netfilter_output_directories_restored": true,
+    "whole_output_recreated_case_sensitive_with_backup": true,
+    "previous_collided_generated_headers_and_kheaders_cleared_for_regeneration": true,
+    "archive_regular_file_verification": {"checked": 73852, "complete": true, "only_expected_core_patch_differs": true},
+    "case_recovered_kheaders_archive_and_object_regenerated": true,
+    "last_completed_full_image_attempt": {"status": "success", "returncode": 0, "elapsed_seconds": 995.912, "btfids_sorttab_sysmap_image_passed": true, "stderr_empty": true, "no_oom_diagnostics": true, "no_live_processes_after_cleanup": true},
+    "authorized_host_memory_adjustment": {"wsl_memory": "24GB", "wsl_swap": "8GB", "measured_memory_kib": 24611412, "measured_swap_kib": 8388608, "kernel_source_config_unchanged": true},
+    "host_pahole_compatibility": {"version": "v1.25", "parameter": "--skip_encoding_btf_enum64", "btf_kept_enabled": true, "temporary_elf_control_pahole_rc": 0, "temporary_elf_control_exact_resolve_btfids_rc": 0},
+    "static_stock_export_comparison": {"stock": 7029, "built": 7029, "missing": 0, "extra": 0, "crc_mismatches": 0, "export_type_mismatches": 0, "namespace_mismatches": 0, "stock_nonempty_namespaces_directly_recovered": 120, "all_crc_type_namespace_match": true, "full_vendor_abi_verified": false},
+    "image": {"bytes": 49572352, "sha256": "43306d8330674e5a66da1102ab5f08257709e4ed991a4e709a7b56811b785f33", "arm64_header_magic": "0x644d5241", "runtime_size_matches_vmlinux_text_to_end": 50200576},
+    "vmlinux": {"bytes": 474780408, "sha256": "14cc907bd441fcd171b8311a939f86ba0c051acd15455218697d94a564d42ab3", "machine": "EM_AARCH64", "btf_bytes": 5590812},
+    "full_image_status": "built_and_statically_verified_not_deployed",
+    "stock_vendor_abi_compatibility_verified": false
+  },
+  "deployment": {
+    "attempted": false,
+    "standard_livepatch_available": false,
+    "dynamic_function_tracing_available": false,
+    "kprobe_interfaces_available": true,
+    "kprobes_are_not_a_verified_function_replacement_route": true,
+    "perf_core_makefile_removes_ftrace_flags": true,
+    "module_reload_cannot_replace_perf_core": true,
+    "boot_packaging_abi_signatures_and_runtime_recapture_pending": true,
+    "active_init_boot_differs_from_local_stock_do_not_replace": true
+  },
+  "remaining_limits": [
+    "Native simpleperf exclusive PT_LOAD end conversion is a separate userspace constraint.",
+    "ID0 formatter padding handling is independently fixed in the decoder; mixed genuine IDs are rejected in the probe window.",
+    "Fallback planner reports boundary cropping; it is not the kernel fix.",
+    "Intermittent zero-AUX unfiltered recordings remain unexplained.",
+    "Historical missing execution packets cannot be reconstructed by metadata or source repair.",
+    "Complete vendor ABI and boot/signature compatibility, startup and repaired-device filtered capture are not verified."
+  ],
+  "publication": "Aggregate allowlisted evidence only; no real application identity, device serial, host user paths, raw trace/maps/ELF/dump or new kernel binary."
+}

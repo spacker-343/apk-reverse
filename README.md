@@ -117,8 +117,10 @@ with `scripts/`, `references/` and `assets/` directly underneath. The same rule 
   No boot autoload is installed, and full instruction-path decoding remains unverified.
 - Reusing **ETE native-range decoding** on that exact socrates baseline: installed OpenCSD wrapper,
   capture-time maps/PT_LOAD/hashed ELF validation and synthetic tests are bundled. See
-  `skills/apk-reverse/references/ete-decoding.md`. The filtered sample remains NO_SYNC-only with
-  unresolved cause; successful samples have reset/overflow gaps, so this is not a gap-free path or business semantics.
+  `skills/apk-reverse/references/ete-decoding.md`. The perf VMA file-boundary bug is repaired and
+  persistently deployed to boot_a; `ete_record.py` fixes tested zero-AUX startup/shutdown ordering.
+  Six alternating 30ms/150ms post-reboot captures decoded real ELF-validated ranges. Historical failed
+  traces remain unrecovered, and reset/overflow gaps still prevent a gap-free path or business-semantics claim.
 - Recognising when **userspace hooking cannot reach the check at all** (raw `svc` syscalls,
   `init_array`-early detection), what the next layer up and down can actually do, and when escalating
   is the wrong answer.

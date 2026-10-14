@@ -63,7 +63,7 @@
 - 当逆向的成本高于调用时，**调用例程而不是逆向它**：在宿主上做模拟执行，或把一个活函数通过 Frida RPC 服务化。
 - 当一个 native 函数被 OLLVM 碾平成状态机时，去读**指令级执行证据**——包括在真实设备上实测到的 Stalker 反咬的两种方式。
 - **重启后恢复已验证的 K60 Pro/socrates ETE source 驱动**：精确内核 `.ko`、构建/ABI 材料和脱敏 AUX 采集证据随 skill 保存。入口为 `skills/apk-reverse/references/ete-socrates-module.md`；先执行 `python skills/apk-reverse/scripts/ete_module.py --verify-only`，需要重载时显式使用 `--load`。没有配置开机自动加载，完整指令路径解码仍未验证。
-- **复用 ETE native 指令区间解码**：精确 socrates 基线的设备 OpenCSD 工具、采集时 maps/PT_LOAD/真实 ELF 字节验证及合成测试随 skill 安装；新目标重新采集并验证，入口为 `skills/apk-reverse/references/ete-decoding.md`。小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
+- **复用 ETE native 指令区间解码**：精确 socrates 基线的设备 OpenCSD 工具、采集时 maps/PT_LOAD/真实 ELF 字节验证及合成测试随 skill 安装；新目标重新采集并验证，入口为 `skills/apk-reverse/references/ete-decoding.md`。perf 文件过滤的 VMA 边界误匹配已修复并仅持久刷入 `boot_a`，正常重启仍有效；`ete_record.py` 修正独立零 AUX 启停问题，持久部署后六次交替 30ms/150ms 采集均有验证区间。仍有 reset/overflow 缺口，历史失败 trace 未恢复，不是无缺口完整执行路径或业务语义。
 - 认出**用户态 hooking 根本够不到那个检查**的情况（裸 `svc` 系统调用、`init_array` 早期检测）、上下相邻层实际能做什么，以及什么时候继续升级是错误答案。
 - 处理**非 REST 的协议**——无 schema 的 protobuf、gRPC、QUIC/HTTP3——以及无视系统信任库的 native 侧证书固定（pinning）。
 - **直接在手机上工作**：MT Manager 的编辑/重打包/签名流程及其 APK MCP 接口、LSPosed Manager、设备上的数据检查，与 PC 工具链并用，而不是用它来替代 PC 工具链。

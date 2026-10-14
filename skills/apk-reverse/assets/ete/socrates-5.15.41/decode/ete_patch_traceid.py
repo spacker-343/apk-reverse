@@ -99,19 +99,23 @@ def parse_info(body):
 
 
 def in_stream_ids(path, per_cpu_bytes=200000):
-    """Recovered CoreSight source ID carrying the most bytes, per CPU."""
+    """Unique real source ID per CPU in the probe; reject mixed genuine layouts."""
     out = {}
     for payload, _idx, cpu in D.walk_aux_payloads(path):
         _b, ids = D.deformat(payload[:per_cpu_bytes])
-        if not ids:
-            continue
         hist = {}
         for sid in ids:
-            hist[sid] = hist.get(sid, 0) + 1
-        top = max(hist.items(), key=lambda kv: kv[1])
+            # CoreSight reserved IDs include 0 and 0x70..0x7f. Short captures
+            # can contain more ID0 padding than actual trace, not a new CPU ID.
+            if 0 < sid < 0x70:
+                hist[sid] = hist.get(sid, 0) + 1
         cur = out.setdefault(cpu, {})
-        cur[top[0]] = cur.get(top[0], 0) + top[1]
-    return {cpu: max(h.items(), key=lambda kv: kv[1])[0] for cpu, h in out.items()}
+        for sid, count in hist.items():
+            cur[sid] = cur.get(sid, 0) + count
+    if any(len(hist) > 1 for hist in out.values()):
+        raise ValueError("mixed genuine formatted source IDs in one CPU probe")
+    return {cpu: next(iter(hist)) for cpu, hist in out.items() if hist}
+
 
 def resolve_rule(rule, cpu, stream_ids):
     """Desired decoder ID for one CPU. `in-stream` falls back to cpu+1 for a CPU

@@ -41,8 +41,8 @@ next** — and points at the one section that says "the full record is elsewhere
 | Neutralising a native terminate path | Tooling works, patch does not: writes land and survive detach, and the target still dies at the same site | partial | observed | `references/native-tamper-and-suicide.md`, `scripts/spawn_patch_detach.py`, `scripts/hook_patch_only.js` |
 | Instruction-level tracing (Stalker) | Exclusion keeps the target alive; it does not restore event delivery, which stayed at zero | partial | observed | `references/native-dbi-and-deobfuscation.md`, `scripts/stalker_trace.js`, `scripts/stalker_report.py` |
 | ARM hardware trace capability probe | Initial rooted K60 Pro recording failed with `etm devices are not available`; a stock-ABI matched source module then initialized eight ETE v1 sources in Enforcing and captured 2,166,016 AUX bytes; full path decoding and SPE/BRBE remain unverified | partial | observed | `references/ete-socrates-module.md`, `scripts/device_hw_probe.py`, `assets/ete/socrates-5.15.41/evidence/runtime-summary.md` |
-| Socrates ETE module and reboot recovery | Verified original `.ko` and build/ABI materials are bundled; explicit `ete_module.py --load` guards exact baseline/hash and refuses repeat insmod; no boot autoload is configured or reboot tested by this update | device-specific | observed (original load/capture); unverified (reboot/autoload) | `references/ete-socrates-module.md`, `scripts/ete_module.py`, `assets/ete/socrates-5.15.41/` |
-| Socrates ETE native-range decoding | Device OpenCSD decoded 610,502 target ranges / 19,918 unique, all validated against capture-time maps/PT_LOAD/real ELF bytes; shell control and NO_SYNC-only filtered failure preserved | partial (intervals only) | observed | `references/ete-decoding.md`, `scripts/ete_decode.py`, `assets/ete/socrates-5.15.41/evidence/decode-result.json` |
+| Socrates ETE module and reboot recovery | Verified original `.ko` and build/ABI materials are bundled; explicit `ete_module.py --load` guards exact baseline/hash and refuses repeat insmod; normal reboot and explicit reload verified after persistent perf-core deployment; no Magisk autoload package installed | device-specific | observed (load/capture/reboot/reload); unverified (autoload package) | `references/ete-socrates-module.md`, `scripts/ete_module.py`, `assets/ete/socrates-5.15.41/evidence/perf-filter-deployment.json` |
+| Socrates ETE native-range decoding | Original native target decoded 610,502 ranges / 19,918 unique against capture-time maps/PT_LOAD/real ELF; historical NO_SYNC failure preserved; repaired boundary filtering and 30ms/150ms captures now verified | partial (intervals only) | observed | `references/ete-decoding.md`, `scripts/ete_decode.py`, `assets/ete/socrates-5.15.41/evidence/perf-filter-deployment.json` |
 | PIE/`.so` runtime address mapping | A dependency-free `PT_LOAD` mapper checks runtime PC, load bias, file offset, and BSS-only ranges; end-to-end tombstone integration is not measured | partial | inferred | `references/arm-tracing-elf-and-crash.md`, `scripts/elf_runtime.py` |
 | Library mapping and PLT resolution | Mapping verified on a real target; the PLT script was broken and fixed after a false negative on a symbol that exists and is called | ok | observed | `references/native-and-so.md`, `scripts/lib_map.py`, `scripts/elf_plt.py` |
 | Native crash triage and swallowed stacks | Unmeasured, including on the one target whose crash reporter hid exactly the stack the tool claims to recover | partial | unverified | `references/native-tamper-and-suicide.md`, `scripts/native_crash.py`, `scripts/grab_crash.py` |
@@ -107,5 +107,18 @@ copy never has to fail silently at a path it cannot open.
 
 ## ETE 解码记录的限制
 
-小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
+文件过滤的 VMA 边界误匹配已修复，零 AUX 的独立启停问题由 ete_record.py 修正；持久部署后 30ms/150ms 六次采集均有真实解码区间。仍有 reset/overflow 缺口，历史失败 trace 未恢复，不是无缺口完整执行路径或业务语义。
 新目标必须重新采集 maps/真实 ELF/trace 并验证，不能套用历史计数。旧 source/AUX 记录与新解码聚合证据分开保存；原始真实目标输入只留本地，不随 skill 发布。
+
+## 后续 ETE perf 核心修复证据
+
+`observed`：stock boot 内核与原 Image 哈希相同、配置与原记录相同；精确 ACK 与 MiCode
+`core.c` 逐字节相同。自建 shell 对照复现端点误匹配为零长度范围；最小 C 修复通过
+12 个边界用例、50,000 组随机检查及完整 AArch64 Image 构建，保留 LTO/CFI/BTF。
+7,029 项 stock 导出 CRC、导出类型和原 ELF 命名空间全部匹配。
+`observed`：两轮 RAM boot 后，仅持久刷入 `boot_a`；正常重启仍运行修复内核，boot_a 哈希/运行 BTF 一致，
+其他四个备份分区不变、root/Enforcing 保留。边界文件过滤有真实区间，修复采集器启停顺序后短窗口可解码。
+`partial`：仍有 overflow，完整 vendor ABI/长期健康/完整路径未验证；历史小 trace 未恢复，fallback 裁剪不是根治。
+ETE `.ko` 未改，重启后仍需显式加载，不是已安装的 Magisk autoload 包。
+安装内证据：`assets/ete/socrates-5.15.41/evidence/perf-filter-repair.json` 是部署前快照，后续 `perf-filter-deployment.json` 记录实测；
+源码修复：`assets/ete/socrates-5.15.41/build/perf-fix/README.md`。

@@ -4,7 +4,7 @@
 
 **Load this when:** ARM tracing names, ELF/crash addresses, or OLLVM/VMP path evidence decide the next route.
 
-> **强度说明：**分为 `observed`、`inferred`、`unverified`。socrates 精确内核上的八核 ETE 初始化、短时 AUX 采集及 maps/PT_LOAD/真实 ELF 字节验证的 native 指令区间已有 `observed` 记录，见 `references/ete-socrates-module.md` 与 `references/ete-decoding.md`。成功样本仍有 reset/overflow 缺口，小过滤样本只有 NO_SYNC 且原因未闭合；不是完整执行路径或业务语义。运行 `scripts/device_hw_probe.py` 保存本次输出，其他设备/内核/新目标必须重新验证。
+> **强度说明：**分为 `observed`、`inferred`、`unverified`。socrates 精确内核上的八核 ETE 初始化、短时 AUX 采集及 maps/PT_LOAD/真实 ELF 字节验证的 native 指令区间已有 `observed` 记录，见 `references/ete-socrates-module.md` 与 `references/ete-decoding.md`。后续 perf 边界过滤及独立零 AUX 启停问题已修复，持久部署后 30ms/150ms 六次采集均有验证区间；仍有 reset/overflow 缺口，历史失败 trace 未恢复，不是完整执行路径或业务语义。运行 `scripts/device_hw_probe.py` 保存本次输出，其他设备/内核/新目标必须重新验证。
 
 ## 1. 先建立一张“能力分层图”
 

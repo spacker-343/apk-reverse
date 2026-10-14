@@ -25,6 +25,10 @@ RANGE = re.compile(r"exec range=(0x[0-9a-f]+):\[(0x[0-9a-f]+)\] num_i\((\d+)\)")
 ASYNC = b"\x00" * 11 + b"\x80"
 
 
+class NoAuxData(ValueError):
+    """Valid observed metadata, but the recorder saved no AUX payload."""
+
+
 def sha256(path):
     h = hashlib.sha256()
     with open(path, "rb") as fh:
@@ -88,6 +92,8 @@ def prepare_trace(src, dst):
     for e in entries:
         if e["nrtrcparams"] != 8 or e["trctraceidr"] not in (0x10 + 2 * e["cpu"], e["cpu"] + 1):
             raise ValueError("unexpected trace-ID layout; refusing a guessed repair")
+    if not any(payload for payload, _idx, _cpu in P.D.walk_aux_payloads(src)):
+        raise NoAuxData("recording contains zero AUX bytes; no execution packets were captured")
     stream_ids = P.in_stream_ids(src)
     if not stream_ids or any(sid != cpu + 1 for cpu, sid in stream_ids.items()):
         raise ValueError("formatted stream does not match the observed cpu+1 layout")
@@ -253,6 +259,10 @@ def decode(args):
         if not report["source_unchanged"]:
             raise ValueError("original trace changed")
         report["status"] = "decoded_ranges" if report["instruction_ranges"] else "no_instruction_ranges"
+    except NoAuxData as exc:
+        report.update(status="no_aux_data", error=str(exc), aux_bytes=0,
+                      instruction_ranges=0, full_trace_verified=False,
+                      remote_cleanup=True, remote_created=False)
     except (OSError, ValueError, RuntimeError, struct.error, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
         report["status"], report["error"] = "unavailable", str(exc)
     finally:
@@ -278,7 +288,7 @@ def decode(args):
     print("RESULT=" + report["status"])
     if report.get("remote_cleanup") is False:
         return 2
-    return 0 if report["status"] == "decoded_ranges" else 1 if report["status"] == "no_instruction_ranges" else 2
+    return 0 if report["status"] == "decoded_ranges" else 1 if report["status"] in ("no_instruction_ranges", "no_aux_data") else 2
 
 
 def main():

@@ -82,7 +82,7 @@ built on them has nothing to check itself against.
 - **The historical Stalker experiment produced no real OLLVM trace.** Exclusion keeps a target alive
   but does not restore event delivery. This is not a verdict on the later ETE native-range capability
   in `references/ete-decoding.md`, which remains limited to validated intervals rather than semantics.
-- **ETE decoding limits:** 小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
+- **ETE decoding limits:** 文件过滤的 VMA 边界误匹配已修复，零 AUX 的独立启停问题由 ete_record.py 修正；持久部署后 30ms/150ms 六次采集均有真实解码区间。仍有 reset/overflow 缺口，历史失败 trace 未恢复，不是无缺口完整执行路径或业务语义。
 
 ## Conclusions that changed — an older copy may still state the old one
 
@@ -130,3 +130,14 @@ cached page that states the old version, the old version is wrong.
   exactly there, and an artifact that installs is not the same artifact as one that launched.
 - Treating a documented version requirement as a measured one. The version table lists what was read
   off the tools, and separately lists the versions nothing here has ever run on.
+
+## 后续 socrates perf 文件过滤修复边界
+
+官方 perf 核心的 VMA 排他终点误匹配已经由源码与自建 shell 对照定位；不是 ETE `.ko`
+构建逻辑改动。最小修复已通过真实 C 回归与完整 Image 构建，
+7,029 项 stock 导出 CRC/类型/命名空间全部匹配。后续两轮 RAM boot 成功，边界过滤有真实区间解码证据；
+完整 vendor ABI/长期健康和无缺口完整路径仍未验证；已仅持久刷入 boot_a 并验证正常重启，其他备份分区不变。标准 livepatch/ftrace 替换不可用。
+`ete_addr_filter.py` 只是 stock 兼容 fallback，必须报告边界裁剪；simpleperf 终点转换另有约束。
+历史小 trace 未恢复。独立零 AUX 采集失败已通过启停顺序干预定位：`ete_record.py` 初始化后重启并在退出前禁用，
+三次150ms/三次30ms 全部采集且解码成功；仍有 overflow，内部源码时序解释属于 inferred，非所有负载可靠性保证。
+详见 `assets/ete/socrates-5.15.41/evidence/perf-filter-deployment.json`、部署前快照 `perf-filter-repair.json` 与 `references/ete-decoding.md`。

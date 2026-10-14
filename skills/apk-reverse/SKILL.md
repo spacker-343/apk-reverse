@@ -120,8 +120,13 @@ snapshot dump you must obtain elsewhere and naming the front end matters · extr
 stops at the VMP boundary · Stalker and ETE traces are optional execution-path backends, not automatic
 deobfuscators · a hardware-trace result needs a successful bounded recording and ELF address mapping ·
 a kernel-side answer normally requires an external module. One exact-kernel socrates ETE source
-module is bundled with guarded reload tooling: `references/ete-socrates-module.md`; successful AUX
-capture does not establish full instruction-path decoding, and reboot still requires explicit reload.
+module is bundled with guarded reload tooling: `references/ete-socrates-module.md`. On that exact
+baseline, perf-core file-boundary filtering was repaired and persistently deployed to boot_a;
+`scripts/ete_record.py` fixes tested zero-AUX startup/shutdown ordering, with real decoded ranges
+in bounded 30ms/150ms controls (`references/ete-decoding.md` and
+`assets/ete/socrates-5.15.41/evidence/perf-filter-deployment.json`). Overflow remains: neither AUX alone
+nor these intervals prove a gap-free path. The external `.ko` still requires explicit reload after
+reboot; no Magisk autoload package is installed.
 
 **Not covered — say so rather than improvise:** Unity / IL2CPP · React Native / Hermes / Cordova ·
 iOS · defeating a server-side authority · an off-the-shelf unpacker or an anti-detection arms race ·
@@ -214,6 +219,7 @@ unread in this repository.
 | A tombstone PC does not match the bytes in a local PIE/`.so`, or a trace address looks impossible | `references/arm-tracing-elf-and-crash.md` §4 — map runtime address through `PT_LOAD` and load bias before disassembling |
 | The socrates ETE sources disappear after reboot, or you need the verified source driver to reload | `references/ete-socrates-module.md` — bundled `.ko`, exact-kernel/hash gates, explicit reload and capture evidence |
 | ETE AUX is captured but decoding is silent/NO_SYNC, or a new APK needs verified native instruction ranges | `references/ete-decoding.md` — installed decoder, capture-time maps/ELF validation and reset/overflow limits; not a complete execution path |
+| Socrates file-filter boundaries produce zero ranges, or short recordings contain zero AUX | `references/ete-decoding.md` — separate built-in perf VMA matching from recorder startup/shutdown; repaired boundary controls and bounded `ete_record.py`, not syncfreq guesses |
 | The traffic is protobuf/gRPC/QUIC, or a proxy sees TLS but requests still fail on a Flutter app | `references/protocol-reverse.md` — schema-less protobuf, frame capture, and native-side pinning |
 | Userspace hooks land and the app still dies: the check reads `/proc/self/status` through a raw `svc`, or runs before `JNI_OnLoad` | `references/kernel-and-environment-hardening.md` — what the next layer up and down can actually do, and when to stop |
 | You must edit, repack, sign or inspect the APK **from the phone itself** | `references/on-device-tooling.md`, `scripts/mt_mcp_probe.py` |

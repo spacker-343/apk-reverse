@@ -18,7 +18,7 @@
 - `SHA256SUMS.txt` 覆盖发布文件；原始 `.ko` 未重新编译、剥离或改字节。
 - `.ko` 保留原构建 DWARF 路径（含构建主机用户名），以保持实测字节与哈希；没有剥离或重编译冒充原模块。
 - `check_repo.py` 仅对这条模块路径及其固定 SHA-256 作公开 DWARF 例外，并打印说明；任意改动不再排除。显式运行扫描器仍可检查模块。
-- 本次发布复测见 `evidence/publish-check.json`：新工具成功采集并清理；没有重新加载、重启或配置 autoload。
+- 历史发布复测见 `evidence/publish-check.json`：当时新工具成功采集并清理，没有重新加载、重启或配置 autoload。后续持久部署/重启/显式重载记录见 `evidence/perf-filter-deployment.json`。
 
 ## 重启恢复
 
@@ -52,7 +52,14 @@ python skills/apk-reverse/scripts/device_hw_probe.py --expect-root --smoke-test 
 
 旧采集流程见 `references/ete-socrates-module.md`；新解码入口、maps/PT_LOAD/ELF 验证和复用步骤见 `references/ete-decoding.md`（均相对 skill 根目录）。
 后续真实 native 区间已验证，但完整路径、OLLVM/VMP 还原、睡眠唤醒与长时稳定性未验证。
-小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
+文件过滤的 VMA 边界误匹配已修复，零 AUX 的独立启停问题由 ete_record.py 修正；持久部署后 30ms/150ms 六次采集均有真实解码区间。仍有 reset/overflow 缺口，历史失败 trace 未恢复，不是无缺口完整执行路径或业务语义。
+
+后续边界/内部 shell 对照定位到官方 perf 核心的 VMA 排他终点误匹配；原历史记录保持原样。
+内核源码修复、点过滤语义和直接 C 回归见 `build/perf-fix/README.md`，
+部署前构建快照见 `evidence/perf-filter-repair.json`；后续实测见 `evidence/perf-filter-deployment.json`。
+修复内核经两轮 RAM boot 验证后已仅持久刷入 `boot_a`，正常重启后仍生效；其他备份分区不变，root/Enforcing 保留。
+现有 `.ko` 不含 perf 核心，字节未改；仍需每次重启后显式加载，没有安装 Magisk 开机加载模块。
+`ete_addr_filter.py` 仅是未修内核的裁剪 fallback；`ete_record.py` 修正启动/退出顺序，短窗口回归取得真实解码区间，仍有 overflow。
 
 ## 构建材料与不上传的内容
 
@@ -63,10 +70,10 @@ python skills/apk-reverse/scripts/device_hw_probe.py --expect-root --smoke-test 
 
 ## 解码资产
 
-- `decode/`：设备 OpenCSD harness、deframe/trace-ID/ELF 坐标依赖、独立合成 fixture 与 23 项测试。
+- `decode/`：设备 OpenCSD harness、deframe/trace-ID/ELF 坐标依赖、独立 fixture、29 项解码、10 项过滤规划及 6 项采集控制测试。
 - `evidence/decode-result.json`：脱敏聚合历史测量；不携带真实目标 APK/ELF/maps/perf 或完整 dump。
-- `evidence/decode-publication.json`：本次资产范围与输入保护说明；旧 runtime/publish-check 记录不倒改。
-- skill 的三个 `scripts/ete_*.py` 新入口转发到同一 backend，安装后无需原项目。
+- `evidence/decode-publication.json`：历史解码发布范围与输入保护快照，和 `decode-result.json` 中当时的限制文案均保留；当前修复状态见 `perf-filter-deployment.json`，不倒改旧记录。
+- skill 的解码、manifest、地址映射、过滤规划与有界采集入口转发到同一 backend，安装后无需原项目。
   Python 3.9+、ADB 和精确 root 设备；Capstone 仅为可选助记符依赖。
 
 `SHA256SUMS.txt` 覆盖发布资产（自身除外），固定 `.ko` 字节与 GPL 来源保持不变。

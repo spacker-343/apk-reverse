@@ -16,8 +16,8 @@ SELinux 始终 Enforcing，没有刷 boot/vendor_boot/vendor_dlkm，没有配置
 这份旧记录是 **硬件采集 + 文件结构验证**，不是完整 ETE 指令/分支路径解码，也不是真实 APK 还原。
 后续独立解码记录已验证真实 native 指令区间，工具和复用步骤见 `references/ete-decoding.md`；不倒改旧样本结论。
 
-`unverified`：无缺口完整路径、长时/睡眠唤醒、内核态、跨 CPU 全序、过滤失败根因，以及 OLLVM/VMP 语义恢复。
-小过滤样本仍只有 NO_SYNC，具体原因未闭合；成功样本也存在 reset/overflow 缺口。因此当前验证的是真实指令区间，不是无缺口完整执行路径或业务语义。
+`unverified`：无缺口完整路径、长时/睡眠唤醒、内核态、跨 CPU 全序，以及 OLLVM/VMP 语义恢复。
+`observed`（后续修复）：perf 文件过滤的 VMA 边界误匹配已修复，独立零 AUX 启停问题由 `ete_record.py` 修正；仅持久刷入 `boot_a` 后正常重启仍有效，30ms/150ms 六次采集均有真实 maps/ELF 验证区间。仍有 reset/overflow 缺口，历史失败 trace 未恢复；详见 `references/ete-decoding.md` 与 `assets/ete/socrates-5.15.41/evidence/perf-filter-deployment.json`。
 禁止把这条局部成功推广为所有 K60 Pro/所有内核/新目标；新目标必须重采 maps/真实 ELF 并验证。
 
 ## 随 skill 携带的资产
@@ -60,6 +60,12 @@ python skills/apk-reverse/scripts/device_hw_probe.py --expect-root --json
 本次启动里驱动 Live、所有 enable_source=0 是推荐空闲状态；重启后再次执行显式 `--load`。
 不要把持久保存文件、内核 Live、持续追踪这三个状态混为一谈。
 
+### 为什么不会显示在 Magisk 模块管理
+
+Linux 内核模块 `.ko` 由 `insmod` 加入本次启动的内核内存；Magisk 模块则是 `/data/adb/modules/<模块ID>/` 下含 `module.prop` 的安装包。Magisk 页面不会枚举内核已加载的 `.ko`，直接加载驱动不会生成模块条目。
+可以另行制作带设备/内核/哈希/依赖检查的 Magisk 自动加载包：开机仅加载驱动并核验八个 source，保持 `boot_enable=0` 和 source 空闲，不自动追踪、不强制加载、不改 SELinux。安装可见不等于驱动加载成功，仍需核验运行状态；禁用通常在下次启动阻止自动加载，不等于立即卸载。
+当前未安装这种包。持久刷入的 perf 核心修复并未把外置 `.ko` 编入内核；已验证重启后显式恢复驱动，开机自动加载包本身仍未制作或验证。
+
 ## 已执行过的采集命令
 
 以下是原记录中的设备 root shell 命令，输出路径必须没有待保留结果：
@@ -89,7 +95,7 @@ Stalker 日志解析器不是 perf AUX 解码器，不能把原始 AUX 直接交
 - `boot_enable=0` 禁止初始化自动追踪；本驱动 `pm_save_enable=1` 为 never，非省电开关。
 - 正常结束 simpleperf 后检查 source 回到 0；别手动全写 1 绕过 perf 的 sink/AUX 管理。
 - 如需卸载，先停止追踪，再普通 `rmmod coresight_etm4x`；原记录未实测卸载路径。
-  不强制卸载。未配置 autoload 的正常重启会清除临时模块，本更新没有重启手机验证。
+  不强制卸载。未配置 autoload 的正常重启会清除临时模块；后续已实测正常重启并显式重新加载，未安装开机加载包。
 
 ## 构建为何可加载
 

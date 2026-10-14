@@ -79,6 +79,11 @@ file behind it.
   eight ETE v1 sources in Enforcing and captured 2,166,016 bytes AUX; dump validated structure.
   Binary, provenance and old capture evidence ship unchanged; later device OpenCSD decoding verified
   maps/PT_LOAD/ELF-backed native intervals, not a gap-free path or semantics (`ete-decoding.md`).
+  Later built-in perf VMA boundary repair was persistently flashed to boot_a and verified across
+  normal reboot; bounded `ete_record.py` initial restart/final disable resolved tested zero-AUX
+  captures. Six post-reboot 30ms/150ms controls decoded real ELF-backed ranges. Original external
+  `.ko` remains explicit reload only, no Magisk autoload; overflow/long-term health/full-path limits
+  remain (`assets/ete/socrates-5.15.41/evidence/perf-filter-deployment.json`).
 
 ## Covered by documented routes — inferred rather than measured
 
